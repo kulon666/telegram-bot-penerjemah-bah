@@ -1,0 +1,26 @@
+[
+  {
+    "name": "detect",
+    "file": "src/commands/detect.js"
+  },
+  {
+    "name": "formal",
+    "file": "src/commands/formal.js"
+  },
+  {
+    "name": "help",
+    "file": "src/commands/help.js"
+  },
+  {
+    "name": "mode",
+    "file": "src/commands/mode.js"
+  },
+  {
+    "name": "start",
+    "file": "src/commands/start.js"
+  },
+  {
+    "name": "translate",
+    "file": "src/commands/translate.js"
+  }
+]

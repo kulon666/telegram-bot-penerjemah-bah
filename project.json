@@ -1,0 +1,945 @@
+{
+  "projectId": "37c6ef77-f473-4fd6-869f-16f94214bd35",
+  "commands": [
+    {
+      "command": "/detect",
+      "description": "Deteksi heuristik ringan apakah teks kemungkinan Bahasa Jawa.",
+      "usage": "/detect <teks> atau reply pesan lalu kirim /detect",
+      "examples": [
+        "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate."
+      ],
+      "example": "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate.",
+      "notes": "Heuristik ringan, tidak selalu akurat."
+    },
+    {
+      "command": "/formal",
+      "description": "Mengatur gaya bahasa Inggris: neutral, formal, atau casual.",
+      "usage": "/formal neutral|formal|casual",
+      "examples": [
+        "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+        "User: /formal casual → Bot: Oke, formalitas diset ke casual."
+      ],
+      "example": "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+      "notes": "Default adalah neutral."
+    },
+    {
+      "command": "/help",
+      "description": "Panduan lengkap semua fitur dan contoh pemakaian.",
+      "usage": "/help",
+      "examples": [
+        "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect"
+      ],
+      "example": "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect",
+      "notes": "Hanya menjelaskan perintah yang benar-benar tersedia."
+    },
+    {
+      "command": "/mode",
+      "description": "Mengatur mode auto atau manual.",
+      "usage": "/mode auto atau /mode manual",
+      "examples": [
+        "User: /mode auto → Bot: Oke, mode diset ke auto.",
+        "User: /mode manual → Bot: Oke, mode diset ke manual."
+      ],
+      "example": "User: /mode auto → Bot: Oke, mode diset ke auto.",
+      "notes": "Mode auto menerjemahkan semua pesan teks biasa (non-command)."
+    },
+    {
+      "command": "/start",
+      "description": "Sambutan singkat + cara pakai + status setting kamu (mode dan formalitas).",
+      "usage": "/start",
+      "examples": [
+        "User: /start → Bot: menjelaskan cara pakai dan status mode/formal"
+      ],
+      "example": "User: /start → Bot: menjelaskan cara pakai dan status mode/formal",
+      "notes": "Preferensi disimpan di memori runtime dan akan reset kalau bot restart."
+    },
+    {
+      "command": "/translate",
+      "description": "Menerjemahkan teks Jawa ke Inggris dari argumen atau dari pesan yang direply.",
+      "usage": "/translate <teks> atau reply pesan lalu kirim /translate",
+      "examples": [
+        "User: /translate Kowe piye kabare? → Bot: How are you?",
+        "User: (reply pesan) /translate → Bot: (terjemahan dari pesan reply)"
+      ],
+      "example": "User: /translate Kowe piye kabare? → Bot: How are you?",
+      "notes": "Jika tidak ada teks, bot akan memberi instruksi penggunaan."
+    }
+  ],
+  "aiMessages": [
+    {
+      "role": "user",
+      "content": "buatkan bot translate bahasa jawa ke bahasa inggris"
+    },
+    {
+      "role": "assistant",
+      "content": "Project Telegram grammY untuk terjemahan Jawa→Inggris sudah dibuat sesuai spec: mode auto/manual, /translate (arg atau reply), /formal, /detect (heuristik), validasi input + batas panjang, helper AI Gateway yang selalu menyisipkan Bot Profile lewat system prompt, logger + safeErr, startup env sanity logs, dan polling long-running yang robust pakai @grammyjs/runner. Tidak ada database dan preferensi disimpan in-memory (reset saat restart). DOCS.md dan .env.sample juga sudah disiapkan.\n\nFiles touched (21): .env.sample, DOCS.md, package.json, project.json, src/bot.js, src/commands/detect.js…\nValidation: ✅ project passes syntax/basic checks after this edit."
+    }
+  ],
+  "createdBy": "69a43286f09020726e251af6",
+  "source": "ai-cold-start",
+  "description": "",
+  "platform": "telegram",
+  "planMarkdown": "Bot: Telegram Bot: Penerjemah Bahasa Jawa ke Bahasa Inggris\n\nSummary:\nBot Telegram ini membantu pengguna menerjemahkan teks Bahasa Jawa (ngoko, krama, campuran) ke Bahasa Inggris dengan pengalaman chat yang sederhana dan cepat. Fokus utama adalah akurasi terjemahan yang konsisten, transparansi (memberi tahu batasan/ketidakpastian), serta keandalan operasional untuk penggunaan produksi.\n\nBot dirancang sebagai satu layanan Node.js (ESM) menggunakan grammY. Persistensi memakai MongoDB untuk menyimpan preferensi pengguna, riwayat singkat, statistik penggunaan, serta log error terstruktur. Integrasi model terjemahan dapat berupa API pihak ketiga atau model internal; arsitektur dibuat agar komponen penerjemah bisa diganti tanpa mengubah alur bot.\n\nProduct goals:\nTujuan utama produk:\n1) Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris dengan latensi rendah dan hasil yang mudah dibaca.\n2) Mendukung variasi bahasa Jawa (ngoko/krama) serta teks campuran Jawa-Indonesia.\n3) Menyediakan kontrol pengguna: mode formal/informal English, preferensi gaya, dan opsi untuk menampilkan romanisasi atau penjelasan istilah tertentu.\n4) Aman dan siap produksi: pembatasan laju, perlindungan dari spam, logging, dan pemantauan kesehatan.\n\nRuang lingkup MVP (minimum viable product):\n1) Terjemahkan pesan teks yang dikirim pengguna (atau reply ke pesan) dari Jawa ke Inggris.\n2) Deteksi bahasa ringan (untuk menghindari menerjemahkan teks yang jelas bukan Jawa) dan fallback yang jelas.\n3) Pengaturan dasar per pengguna: gaya English (formal/informal), panjang output (ringkas/normal), dan opsi mempertahankan istilah asli.\n\nKriteria sukses:\n1) Pengguna bisa menerjemahkan dengan satu langkah: kirim pesan, bot membalas terjemahan.\n2) Tingkat kegagalan rendah (error rate), dengan pesan error yang informatif.\n3) Bot tetap responsif saat beban meningkat, dengan kontrol antrian internal dan rate limiting.\n\nHigh-level architecture:\nGambaran tingkat tinggi (single process):\n1) Telegram layer (grammY): menerima update, routing command, middleware, dan handler pesan.\n2) Application layer: use-case seperti TranslateText, SetPreference, DetectLanguage, UsageAccounting.\n3) Translation provider adapter: antarmuka generik (translate(sourceText, options)) yang dapat diimplementasikan oleh berbagai penyedia (API atau engine internal). Tujuannya mengisolasi ketergantungan vendor/model.\n4) Persistence layer (MongoDB): menyimpan user profile, preferences, usage counters, dan event log ringkas.\n5) Observability: structured logging, error tracking (internal), metrik dasar (jumlah request, latensi, error, token/biaya jika relevan) disimpan di MongoDB atau log aggregator berbasis file.\n\nPrinsip desain:\n1) Idempotensi: setiap update diproses aman tanpa efek samping berulang (misalnya, mencegah double-translate akibat retry webhook/polling).\n2) Bounded work per update: batasi ukuran input, batasi waktu pemrosesan, dan batasi jumlah panggilan ke provider per pesan.\n3) Degradasi yang baik: jika provider down/timeout, bot memberi respons ramah dan menyarankan coba lagi.\n\nMode penerimaan update:\n1) Direkomendasikan webhook untuk produksi agar latensi dan efisiensi lebih baik.\n2) Long polling dapat menjadi fallback saat pengaturan webhook tidak memungkinkan.\n\nKinerja dan kontrol beban:\n1) Rate limiting per user dan global untuk mencegah spam dan menjaga biaya.\n2) Concurrency control internal: batasi jumlah terjemahan paralel (misalnya per proses) agar tidak menumpuk dan menurunkan respons.\n3) Timeout dan retry terkontrol untuk panggilan ke translation provider (retry hanya untuk error yang aman).\n\nData model:\nKoleksi: users\n1) userId (number, unique)\n2) createdAt, updatedAt\n3) locale (string, optional) untuk bahasa UI bot\n4) preferences:\n   1) englishStyle: formal | informal\n   2) outputLength: short | normal\n   3) keepJavaneseTerms: boolean\n   4) showNotes: boolean (catatan istilah/ungkapan)\n   5) defaultMode: auto | forcejvtoen\n5) limits:\n   1) dailyCount\n   2) dailyResetAt\n\nKoleksi: translations (opsional, untuk kualitas/UX)\n1) id\n2) userId\n3) chatId\n4) messageId\n5) sourceText (dipotong/di-hash jika ingin minim data sensitif)\n6) detectedSource: jv | id | en | unknown\n7) resultText\n8) providerMeta:\n   1) providerName\n   2) latencyMs\n   3) costUnits (jika ada)\n9) createdAt\n\nKoleksi: usageevents (opsional, untuk analytics dan debugging)\n1) id\n2) eventType: translaterequest | translatesuccess | translateerror | command\n3) userId, chatId\n4) timestamp\n5) payload ringan (misalnya panjang teks, kategori error, bukan isi penuh teks)\n\nKoleksi: idempotency (opsional, jika dibutuhkan)\n1) key: gabungan chatId:messageId atau updateid\n2) processedAt\n3) ttl index agar otomatis hilang\n\nCatatan privasi:\n1) Untuk produksi, default sebaiknya tidak menyimpan teks lengkap tanpa alasan kuat.\n2) Simpan hash atau potongan singkat untuk korelasi error, dan sediakan opsi /privacy untuk penjelasan serta /forget untuk menghapus data.\n\nKey flows:\nFlow 1: Terjemahkan pesan teks (utama)\n1) User mengirim pesan teks ke bot (private chat) atau mention/reply di grup (jika diaktifkan).\n2) Middleware validasi:\n   1) Cek rate limit.\n   2) Cek ukuran teks (maks karakter) dan normalisasi whitespace.\n   3) Cek idempotensi (hindari proses ulang).\n3) Deteksi mode:\n   1) Jika user memakai /translate atau reply, paksa translate.\n   2) Jika mode auto, lakukan deteksi ringan (heuristik atau via provider) untuk menilai apakah teks kemungkinan Jawa.\n4) Panggil Translation provider adapter dengan opsi dari preferences.\n5) Format output:\n   1) Balas dengan hasil English.\n   2) Jika showNotes aktif dan tersedia, sertakan catatan singkat (misalnya istilah krama yang bermakna sopan).\n6) Simpan event ringkas ke MongoDB (opsional) dan update counter harian.\n\nFlow 2: Terjemahkan dengan reply\n1) User me-reply pesan orang lain dengan perintah /translate.\n2) Bot mengambil teks dari replied message.\n3) Lanjut seperti Flow 1.\n\nFlow 3: Pengaturan pengguna\n1) User membuka /settings.\n2) Bot menampilkan opsi (inline keyboard) untuk:\n   1) English formal/informal\n   2) Output ringkas/normal\n   3) Simpan istilah Jawa (on/off)\n   4) Catatan istilah (on/off)\n3) Pilihan disimpan di users.preferences.\n\nFlow 4: Batas harian dan anti-spam\n1) Setiap request menambah dailyCount.\n2) Jika melewati batas, bot menolak dengan pesan yang jelas dan waktu reset.\n3) Admin dapat menaikkan limit untuk user tertentu (opsional) atau menonaktifkan bot di chat tertentu.\n\nFlow 5: Error handling dan fallback\n1) Timeout ke provider: bot kirim pesan singkat bahwa layanan sedang sibuk, sarankan ulangi.\n2) Error validasi input: bot minta user memendekkan teks atau menghapus format aneh.\n3) Provider mengembalikan hasil kosong: bot minta user coba dengan kalimat lebih lengkap.\n\nFlow 6: Grup (opsional)\n1) Bot hanya merespons jika:\n   1) Pesan diawali trigger seperti \"jv:\" atau\n   2) Bot di-mention, atau\n   3) Pesan adalah reply ke bot\n2) Ini menghindari spam dan gangguan di grup.\n\nTech stack:\nRuntime dan bahasa:\n1) Node.js (ESM) sebagai satu proses layanan.\n2) grammY sebagai framework Telegram bot.\n\nKonfigurasi dan secrets:\n1) TELEGRAMBOTTOKEN dari environment variables.\n2) Konfigurasi tambahan via environment variables: MongoDB connection string, mode webhook/polling, base URL webhook, batas harian, timeout provider.\n\nPersistensi:\n1) MongoDB untuk users, usage, dan log ringkas.\n2) In-memory maps untuk cache sementara (misalnya rate-limit window, concurrency semaphore) dengan asumsi bisa hilang saat restart.\n\nIntegrasi penerjemahan:\n1) Translation provider adapter (abstraksi) agar bisa memakai layanan terjemahan eksternal atau model internal.\n2) Kebijakan timeout, retry terbatas, dan circuit breaker sederhana di level aplikasi untuk menjaga stabilitas.\n\nPenyimpanan file (jika nanti ada fitur voice/image):\n1) Object storage atau simple filesystem storage untuk menyimpan artefak sementara (misalnya audio hasil STT), dengan pembersihan terjadwal.\n\nDeployment:\n1) Satu Node.js server di cloud.\n2) Ekspos endpoint webhook jika memakai webhook; jika polling, tidak perlu inbound.\n3) Health check endpoint internal (opsional) untuk monitoring.\n\nOperasional:\n1) Logging terstruktur ke stdout dan/atau file.\n2) Monitoring metrik aplikasi secara ringan (latensi, error rate) melalui log dan koleksi usageevents di MongoDB.\n\nNon-functional requirements:\nKeandalan:\n1) Timeout ketat untuk panggilan provider dan batas ukuran input.\n2) Idempotensi untuk mencegah duplikasi proses.\n3) Graceful degradation saat provider bermasalah.\n\nKeamanan:\n1) Validasi input dan sanitasi (hindari format yang memicu parsing berlebihan).\n2) Rate limiting per user dan per chat.\n3) Batasi fitur grup untuk mencegah penyalahgunaan.\n4) Minimalkan data sensitif yang disimpan; dukung penghapusan data.\n\nPrivasi dan kepatuhan:\n1) Jelaskan di /privacy data apa yang disimpan (misalnya preferensi, counter, log ringkas).\n2) Default tidak menyimpan isi teks lengkap atau simpan hanya untuk periode singkat dengan TTL.\n\nKinerja:\n1) Concurrency limit untuk request terjemahan.\n2) Cache hasil terjemahan jangka pendek (opsional) berdasarkan hash input + opsi untuk mengurangi biaya dan latensi.\n\nKualitas terjemahan:\n1) Normalisasi teks (spasi, tanda baca) sebelum diterjemahkan.\n2) Opsi mempertahankan istilah budaya yang sulit diterjemahkan.\n3) Mode formal/informal untuk output English.\n4) Mekanisme feedback pengguna untuk perbaikan (misalnya /feedback).\n\nMaintainability:\n1) Arsitektur berlapis dengan adapter provider.\n2) Konfigurasi berbasis environment variables.\n3) Logging dan event yang cukup untuk debugging tanpa menyimpan konten sensitif.\n\nTesting (konsep, tanpa implementasi kode):\n1) Unit test untuk parsing command, validasi input, dan formatting output.\n2) Integration test untuk adapter provider dengan mock.\n3) End-to-end test skenario Telegram (simulasi update) untuk command utama.\n\nBot commands:\n• /start — Memulai bot dan menampilkan cara pakai cepat untuk translate Jawa ke Inggris. (usage: /start) [General]\n• /help — Menampilkan panduan lengkap, contoh, dan tips agar hasil terjemahan lebih baik. (usage: /help) [General]\n• /translate — Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris. Bisa dipakai langsung atau dengan reply ke pesan. (usage: 1) /translate Aku arep lungo saiki\n2) Reply sebuah pesan lalu kirim /translate) [Translation]\n• /settings — Mengatur preferensi terjemahan seperti formal/informal, ringkas/normal, dan catatan istilah. (usage: /settings) [Preferences]\n• /mode — Mengubah mode: auto (deteksi) atau paksa terjemahkan Jawa ke Inggris untuk setiap pesan. (usage: 1) /mode auto\n2) /mode force) [Preferences]\n• /privacy — Menjelaskan data apa yang disimpan dan untuk apa, serta opsi penghapusan data. (usage: /privacy) [Compliance]\n• /forget — Menghapus data pengguna (preferensi dan catatan penggunaan) dari database. (usage: /forget) [Compliance]\n• /feedback — Mengirim masukan tentang kualitas terjemahan atau melaporkan hasil yang salah. (usage: /feedback Terjemahan kata 'monggo' sebaiknya ...) [Support]\n• /status — Menampilkan status singkat bot dan limit pemakaian harian pengguna. (usage: /status) [General]\n",
+  "planSections": {
+    "productGoals": "Tujuan utama produk:\n1) Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris dengan latensi rendah dan hasil yang mudah dibaca.\n2) Mendukung variasi bahasa Jawa (ngoko/krama) serta teks campuran Jawa-Indonesia.\n3) Menyediakan kontrol pengguna: mode formal/informal English, preferensi gaya, dan opsi untuk menampilkan romanisasi atau penjelasan istilah tertentu.\n4) Aman dan siap produksi: pembatasan laju, perlindungan dari spam, logging, dan pemantauan kesehatan.\n\nRuang lingkup MVP (minimum viable product):\n1) Terjemahkan pesan teks yang dikirim pengguna (atau reply ke pesan) dari Jawa ke Inggris.\n2) Deteksi bahasa ringan (untuk menghindari menerjemahkan teks yang jelas bukan Jawa) dan fallback yang jelas.\n3) Pengaturan dasar per pengguna: gaya English (formal/informal), panjang output (ringkas/normal), dan opsi mempertahankan istilah asli.\n\nKriteria sukses:\n1) Pengguna bisa menerjemahkan dengan satu langkah: kirim pesan, bot membalas terjemahan.\n2) Tingkat kegagalan rendah (error rate), dengan pesan error yang informatif.\n3) Bot tetap responsif saat beban meningkat, dengan kontrol antrian internal dan rate limiting.",
+    "highLevelArchitecture": "Gambaran tingkat tinggi (single process):\n1) Telegram layer (grammY): menerima update, routing command, middleware, dan handler pesan.\n2) Application layer: use-case seperti TranslateText, SetPreference, DetectLanguage, UsageAccounting.\n3) Translation provider adapter: antarmuka generik (translate(sourceText, options)) yang dapat diimplementasikan oleh berbagai penyedia (API atau engine internal). Tujuannya mengisolasi ketergantungan vendor/model.\n4) Persistence layer (MongoDB): menyimpan user profile, preferences, usage counters, dan event log ringkas.\n5) Observability: structured logging, error tracking (internal), metrik dasar (jumlah request, latensi, error, token/biaya jika relevan) disimpan di MongoDB atau log aggregator berbasis file.\n\nPrinsip desain:\n1) Idempotensi: setiap update diproses aman tanpa efek samping berulang (misalnya, mencegah double-translate akibat retry webhook/polling).\n2) Bounded work per update: batasi ukuran input, batasi waktu pemrosesan, dan batasi jumlah panggilan ke provider per pesan.\n3) Degradasi yang baik: jika provider down/timeout, bot memberi respons ramah dan menyarankan coba lagi.\n\nMode penerimaan update:\n1) Direkomendasikan webhook untuk produksi agar latensi dan efisiensi lebih baik.\n2) Long polling dapat menjadi fallback saat pengaturan webhook tidak memungkinkan.\n\nKinerja dan kontrol beban:\n1) Rate limiting per user dan global untuk mencegah spam dan menjaga biaya.\n2) Concurrency control internal: batasi jumlah terjemahan paralel (misalnya per proses) agar tidak menumpuk dan menurunkan respons.\n3) Timeout dan retry terkontrol untuk panggilan ke translation provider (retry hanya untuk error yang aman).",
+    "dataModel": "Koleksi: users\n1) userId (number, unique)\n2) createdAt, updatedAt\n3) locale (string, optional) untuk bahasa UI bot\n4) preferences:\n   1) englishStyle: formal | informal\n   2) outputLength: short | normal\n   3) keepJavaneseTerms: boolean\n   4) showNotes: boolean (catatan istilah/ungkapan)\n   5) defaultMode: auto | forcejvtoen\n5) limits:\n   1) dailyCount\n   2) dailyResetAt\n\nKoleksi: translations (opsional, untuk kualitas/UX)\n1) id\n2) userId\n3) chatId\n4) messageId\n5) sourceText (dipotong/di-hash jika ingin minim data sensitif)\n6) detectedSource: jv | id | en | unknown\n7) resultText\n8) providerMeta:\n   1) providerName\n   2) latencyMs\n   3) costUnits (jika ada)\n9) createdAt\n\nKoleksi: usageevents (opsional, untuk analytics dan debugging)\n1) id\n2) eventType: translaterequest | translatesuccess | translateerror | command\n3) userId, chatId\n4) timestamp\n5) payload ringan (misalnya panjang teks, kategori error, bukan isi penuh teks)\n\nKoleksi: idempotency (opsional, jika dibutuhkan)\n1) key: gabungan chatId:messageId atau updateid\n2) processedAt\n3) ttl index agar otomatis hilang\n\nCatatan privasi:\n1) Untuk produksi, default sebaiknya tidak menyimpan teks lengkap tanpa alasan kuat.\n2) Simpan hash atau potongan singkat untuk korelasi error, dan sediakan opsi /privacy untuk penjelasan serta /forget untuk menghapus data.",
+    "keyFlows": "Flow 1: Terjemahkan pesan teks (utama)\n1) User mengirim pesan teks ke bot (private chat) atau mention/reply di grup (jika diaktifkan).\n2) Middleware validasi:\n   1) Cek rate limit.\n   2) Cek ukuran teks (maks karakter) dan normalisasi whitespace.\n   3) Cek idempotensi (hindari proses ulang).\n3) Deteksi mode:\n   1) Jika user memakai /translate atau reply, paksa translate.\n   2) Jika mode auto, lakukan deteksi ringan (heuristik atau via provider) untuk menilai apakah teks kemungkinan Jawa.\n4) Panggil Translation provider adapter dengan opsi dari preferences.\n5) Format output:\n   1) Balas dengan hasil English.\n   2) Jika showNotes aktif dan tersedia, sertakan catatan singkat (misalnya istilah krama yang bermakna sopan).\n6) Simpan event ringkas ke MongoDB (opsional) dan update counter harian.\n\nFlow 2: Terjemahkan dengan reply\n1) User me-reply pesan orang lain dengan perintah /translate.\n2) Bot mengambil teks dari replied message.\n3) Lanjut seperti Flow 1.\n\nFlow 3: Pengaturan pengguna\n1) User membuka /settings.\n2) Bot menampilkan opsi (inline keyboard) untuk:\n   1) English formal/informal\n   2) Output ringkas/normal\n   3) Simpan istilah Jawa (on/off)\n   4) Catatan istilah (on/off)\n3) Pilihan disimpan di users.preferences.\n\nFlow 4: Batas harian dan anti-spam\n1) Setiap request menambah dailyCount.\n2) Jika melewati batas, bot menolak dengan pesan yang jelas dan waktu reset.\n3) Admin dapat menaikkan limit untuk user tertentu (opsional) atau menonaktifkan bot di chat tertentu.\n\nFlow 5: Error handling dan fallback\n1) Timeout ke provider: bot kirim pesan singkat bahwa layanan sedang sibuk, sarankan ulangi.\n2) Error validasi input: bot minta user memendekkan teks atau menghapus format aneh.\n3) Provider mengembalikan hasil kosong: bot minta user coba dengan kalimat lebih lengkap.\n\nFlow 6: Grup (opsional)\n1) Bot hanya merespons jika:\n   1) Pesan diawali trigger seperti \"jv:\" atau\n   2) Bot di-mention, atau\n   3) Pesan adalah reply ke bot\n2) Ini menghindari spam dan gangguan di grup.",
+    "techStack": "Runtime dan bahasa:\n1) Node.js (ESM) sebagai satu proses layanan.\n2) grammY sebagai framework Telegram bot.\n\nKonfigurasi dan secrets:\n1) TELEGRAMBOTTOKEN dari environment variables.\n2) Konfigurasi tambahan via environment variables: MongoDB connection string, mode webhook/polling, base URL webhook, batas harian, timeout provider.\n\nPersistensi:\n1) MongoDB untuk users, usage, dan log ringkas.\n2) In-memory maps untuk cache sementara (misalnya rate-limit window, concurrency semaphore) dengan asumsi bisa hilang saat restart.\n\nIntegrasi penerjemahan:\n1) Translation provider adapter (abstraksi) agar bisa memakai layanan terjemahan eksternal atau model internal.\n2) Kebijakan timeout, retry terbatas, dan circuit breaker sederhana di level aplikasi untuk menjaga stabilitas.\n\nPenyimpanan file (jika nanti ada fitur voice/image):\n1) Object storage atau simple filesystem storage untuk menyimpan artefak sementara (misalnya audio hasil STT), dengan pembersihan terjadwal.\n\nDeployment:\n1) Satu Node.js server di cloud.\n2) Ekspos endpoint webhook jika memakai webhook; jika polling, tidak perlu inbound.\n3) Health check endpoint internal (opsional) untuk monitoring.\n\nOperasional:\n1) Logging terstruktur ke stdout dan/atau file.\n2) Monitoring metrik aplikasi secara ringan (latensi, error rate) melalui log dan koleksi usageevents di MongoDB.",
+    "nonFunctional": "Keandalan:\n1) Timeout ketat untuk panggilan provider dan batas ukuran input.\n2) Idempotensi untuk mencegah duplikasi proses.\n3) Graceful degradation saat provider bermasalah.\n\nKeamanan:\n1) Validasi input dan sanitasi (hindari format yang memicu parsing berlebihan).\n2) Rate limiting per user dan per chat.\n3) Batasi fitur grup untuk mencegah penyalahgunaan.\n4) Minimalkan data sensitif yang disimpan; dukung penghapusan data.\n\nPrivasi dan kepatuhan:\n1) Jelaskan di /privacy data apa yang disimpan (misalnya preferensi, counter, log ringkas).\n2) Default tidak menyimpan isi teks lengkap atau simpan hanya untuk periode singkat dengan TTL.\n\nKinerja:\n1) Concurrency limit untuk request terjemahan.\n2) Cache hasil terjemahan jangka pendek (opsional) berdasarkan hash input + opsi untuk mengurangi biaya dan latensi.\n\nKualitas terjemahan:\n1) Normalisasi teks (spasi, tanda baca) sebelum diterjemahkan.\n2) Opsi mempertahankan istilah budaya yang sulit diterjemahkan.\n3) Mode formal/informal untuk output English.\n4) Mekanisme feedback pengguna untuk perbaikan (misalnya /feedback).\n\nMaintainability:\n1) Arsitektur berlapis dengan adapter provider.\n2) Konfigurasi berbasis environment variables.\n3) Logging dan event yang cukup untuk debugging tanpa menyimpan konten sensitif.\n\nTesting (konsep, tanpa implementasi kode):\n1) Unit test untuk parsing command, validasi input, dan formatting output.\n2) Integration test untuk adapter provider dengan mock.\n3) End-to-end test skenario Telegram (simulasi update) untuk command utama."
+  },
+  "runStatuses": {
+    "37c6ef77-f473-4fd6-869f-16f94214bd35:mm7qlfg1:0baagx": {
+      "phase": "done",
+      "stage": "cold_start",
+      "runId": "37c6ef77-f473-4fd6-869f-16f94214bd35:mm7qlfg1:0baagx",
+      "lastUserMessage": "buatkan bot translate bahasa jawa ke bahasa inggris",
+      "startedAt": "2026-03-01T12:39:14.561Z",
+      "updatedAt": "2026-03-01T12:40:55.261Z",
+      "message": "GitHub auto-push skipped (no repo linked or GitHub not connected in session).",
+      "commands": [
+        {
+          "name": "detect",
+          "file": "src/commands/detect.js"
+        },
+        {
+          "name": "formal",
+          "file": "src/commands/formal.js"
+        },
+        {
+          "name": "help",
+          "file": "src/commands/help.js"
+        },
+        {
+          "name": "mode",
+          "file": "src/commands/mode.js"
+        },
+        {
+          "name": "start",
+          "file": "src/commands/start.js"
+        },
+        {
+          "name": "translate",
+          "file": "src/commands/translate.js"
+        }
+      ],
+      "ok": true,
+      "state": {
+        "projectId": "37c6ef77-f473-4fd6-869f-16f94214bd35",
+        "fileStructure": {
+          ".env.sample": {
+            "type": "file",
+            "content": "# Telegram\nTELEGRAM_BOT_TOKEN=\n\n# CookMyBots AI Gateway\n# COOKMYBOTS_AI_ENDPOINT is a BASE URL (do NOT include /chat)\n# Example: https://api.cookmybots.com/api/ai\nCOOKMYBOTS_AI_ENDPOINT=\nCOOKMYBOTS_AI_KEY=\n\n# Optional controls\nAI_TIMEOUT_MS=600000\nAI_DEBUG=0\nAI_MODEL=\n"
+          },
+          "CHANGELOG.md": {
+            "type": "file",
+            "content": "# Changelog\n\nAll notable changes to this bot project are recorded here.\n\n## 2026-03-01 12:40:55. UTC\n- Request: buatkan bot translate bahasa jawa ke bahasa inggris\n- Summary: Project Telegram grammY untuk terjemahan Jawa→Inggris sudah dibuat sesuai spec: mode auto/manual, /translate (arg atau reply), /formal, /detect (heuristik), validasi input + batas panjang, helper AI Gateway yang selalu …\n- Files: .env.sample, DOCS.md, package.json, project.json, src/bot.js, src/commands/detect.js, src/commands/formal.js, src/commands/help.js, src/commands/loader.js, src/commands/mode.js, src/commands/start.js, src/commands/translate.js, src/features/agent.js, src/inde…\n\n"
+          },
+          "DOCS.md": {
+            "type": "file",
+            "content": "Bot ini menerjemahkan Bahasa Jawa ke Bahasa Inggris di Telegram.\n\nSetup\n1) Install dependencies: npm run install:root\n2) Copy .env.sample menjadi .env lalu isi variabelnya\n3) Jalankan: npm run dev\n\nEnvironment variables\n1) TELEGRAM_BOT_TOKEN (wajib)\nToken bot Telegram dari BotFather.\n2) COOKMYBOTS_AI_ENDPOINT (wajib untuk terjemahan)\nBase URL CookMyBots AI Gateway. Contoh: https://api.cookmybots.com/api/ai\n3) COOKMYBOTS_AI_KEY (wajib untuk terjemahan)\nAPI key untuk CookMyBots AI Gateway.\n4) AI_TIMEOUT_MS (opsional)\nDefault 600000.\n5) AI_MODEL (opsional)\nJika ingin memilih model tertentu lewat gateway.\n\nPerintah\n1) /start\nMenampilkan sambutan singkat dan status setting kamu (mode dan formalitas).\nContoh:\n/start\n\n2) /help\nPanduan lengkap cara pakai dan contoh.\n\n3) /translate\nTerjemahkan teks.\nCara:\n/translate Aku arep lunga saiki\nAtau reply sebuah pesan lalu kirim:\n/translate\n\n4) /mode auto|manual\nMengatur apakah pesan teks biasa diterjemahkan otomatis.\nContoh:\n/mode manual\n\n5) /formal neutral|formal|casual\nMengatur gaya Bahasa Inggris.\nContoh:\n/formal casual\n\n6) /detect\nDeteksi heuristik apakah teks kemungkinan Bahasa Jawa.\nCara:\n/detect Aku ora ngerti\nAtau reply pesan lalu:\n/detect\n\nCatatan\n1) Preferensi user disimpan di memori runtime (in-memory). Kalau bot restart, kembali ke default.\n2) Bot hanya memproses pesan teks. Media seperti foto atau voice akan diminta dikirim sebagai teks.\n"
+          },
+          "package.json": {
+            "type": "file",
+            "content": "{\n  \"name\": \"cookmybots-telegram-bot\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"engines\": {\n    \"node\": \">=18\"\n  },\n  \"scripts\": {\n    \"install:root\": \"bash -lc \\\"set -e; if [ -f package-lock.json ]; then npm ci; else npm install; fi\\\"\",\n    \"build\": \"npm run install:root && echo build\",\n    \"start\": \"node src/index.js\",\n    \"dev\": \"node --watch src/index.js\"\n  },\n  \"dependencies\": {\n    \"dotenv\": \"^16.4.5\",\n    \"grammy\": \"^1.20.0\",\n    \"mongodb\": \"^6.10.0\",\n    \"@grammyjs/runner\": \"^2.0.3\"\n  },\n  \"devDependencies\": {}\n}\n"
+          },
+          "src": {
+            "type": "dir",
+            "children": {
+              "bot.js": {
+                "type": "file",
+                "content": "import { Bot } from \"grammy\";\nimport { registerCommands } from \"./commands/loader.js\";\nimport { registerAgent } from \"./features/agent.js\";\n\nexport function createBot(token) {\n  const bot = new Bot(token);\n\n  // Commands first (middleware order matters)\n  registerCommands(bot);\n\n  // AI/auto-translate catch-all after commands\n  registerAgent(bot);\n\n  // Friendly handler for non-text messages\n  bot.on(\"message\", async (ctx, next) => {\n    const hasText = typeof ctx.message?.text === \"string\";\n    if (hasText) return next();\n\n    // Ignore service messages etc. but be friendly for common media\n    const m = ctx.message || {};\n    const looksLikeUserMedia =\n      !!m.sticker || !!m.photo || !!m.voice || !!m.video || !!m.document || !!m.audio;\n\n    if (looksLikeUserMedia) {\n      try {\n        await ctx.reply(\"Aku belum bisa memproses media. Tolong kirim teks Bahasa Jawa ya.\");\n      } catch {\n        // ignore\n      }\n    }\n\n    return next();\n  });\n\n  bot.catch((err) => {\n    const e = err?.error || err;\n    console.error(\n      JSON.stringify({\n        level: \"error\",\n        msg: \"bot.catch\",\n        updateId: err?.ctx?.update?.update_id,\n        err:\n          e?.response?.data?.error?.message ||\n          e?.response?.data?.message ||\n          e?.message ||\n          String(e),\n      })\n    );\n  });\n\n  return bot;\n}\n"
+              },
+              "commands": {
+                "type": "dir",
+                "children": {
+                  "detect.js": {
+                    "type": "file",
+                    "content": "import { isLikelyJavanese } from \"../lib/jawaDetect.js\";\n\nfunction getArgText(ctx) {\n  const t = String(ctx.message?.text || \"\");\n  const parts = t.split(\" \");\n  parts.shift();\n  return parts.join(\" \").trim();\n}\n\nexport default function register(bot) {\n  bot.command(\"detect\", async (ctx) => {\n    const replyText = ctx.message?.reply_to_message?.text;\n    const argText = getArgText(ctx);\n\n    const text = (replyText && String(replyText).trim()) || argText;\n    if (!text) {\n      return ctx.reply(\"Pakai: /detect <teks> atau reply sebuah pesan lalu kirim /detect.\");\n    }\n\n    const ok = isLikelyJavanese(text);\n    if (ok) {\n      return ctx.reply(\"Kemungkinan Jawa: ya. Kalau mau diterjemahkan, pakai /translate atau kirim teks biasa (mode auto).\" );\n    }\n\n    return ctx.reply(\"Kemungkinan Jawa: tidak. Kalau kamu tetap mau coba, pakai /translate.\" );\n  });\n}\n"
+                  },
+                  "formal.js": {
+                    "type": "file",
+                    "content": "import { getPrefs, setFormal } from \"../lib/userPrefs.js\";\n\nfunction getArg(ctx) {\n  const t = String(ctx.message?.text || \"\").trim();\n  const parts = t.split(/\\s+/);\n  parts.shift();\n  return String(parts[0] || \"\").toLowerCase();\n}\n\nexport default function register(bot) {\n  bot.command(\"formal\", async (ctx) => {\n    const arg = getArg(ctx);\n    const userId = ctx.from?.id;\n\n    if (arg !== \"neutral\" && arg !== \"formal\" && arg !== \"casual\") {\n      const p = getPrefs(userId);\n      return ctx.reply(\n        `Pakai: /formal neutral|formal|casual. Status kamu sekarang: formalitas=${p.formal}.`\n      );\n    }\n\n    setFormal(userId, arg);\n    return ctx.reply(`Oke, formalitas diset ke ${arg}.`);\n  });\n}\n"
+                  },
+                  "help.js": {
+                    "type": "file",
+                    "content": "export default function register(bot) {\n  bot.command(\"help\", async (ctx) => {\n    const text = [\n      \"Fitur bot ini: menerjemahkan Bahasa Jawa ke Bahasa Inggris.\",\n      \"\", \n      \"Cara pakai:\",\n      \"1) Mode auto (default): kirim teks biasa (bukan command), bot akan menerjemahkan.\",\n      \"2) /translate <teks> untuk menerjemahkan teks tertentu.\",\n      \"3) Reply sebuah pesan lalu kirim /translate untuk menerjemahkan pesan yang direply.\",\n      \"4) /mode auto atau /mode manual untuk mengatur apakah pesan biasa diterjemahkan otomatis.\",\n      \"5) /formal neutral|formal|casual untuk mengatur gaya Bahasa Inggris.\",\n      \"6) /detect <teks> atau reply lalu /detect untuk cek kemungkinan teksnya Bahasa Jawa.\",\n      \"\", \n      \"Contoh:\",\n      \"User: /mode manual\",\n      \"Bot: Oke, mode manual aktif.\",\n      \"\", \n      \"User: /translate Kowe wis mangan durung?\",\n      \"Bot: Have you eaten yet?\",\n      \"\", \n      \"User: /formal formal\",\n      \"Bot: Oke, formalitas diset ke formal.\",\n      \"\", \n      \"User: /detect Aku ora ngerti\",\n      \"Bot: Kemungkinan Jawa: ya. Coba pakai /translate.\",\n    ].join(\"\\n\");\n\n    await ctx.reply(text);\n  });\n}\n"
+                  },
+                  "loader.js": {
+                    "type": "file",
+                    "content": "import fs from \"node:fs\";\nimport path from \"node:path\";\nimport { fileURLToPath, pathToFileURL } from \"node:url\";\n\nexport async function registerCommands(bot) {\n  const dir = path.dirname(fileURLToPath(import.meta.url));\n\n  const commandFiles = fs\n    .readdirSync(dir)\n    .filter(\n      (file) =>\n        file.endsWith(\".js\") &&\n        file !== \"loader.js\" &&\n        !file.startsWith(\"_\")\n    );\n\n  for (const file of commandFiles) {\n    const url = pathToFileURL(path.join(dir, file)).href;\n    const mod = await import(url);\n\n    const handler =\n      (mod && (mod.default || mod.register)) ||\n      (typeof mod === \"function\" ? mod : null);\n\n    if (typeof handler === \"function\") {\n      await handler(bot);\n    } else {\n      console.warn(\"[commands] \" + file + \" has no usable export; skipped.\");\n    }\n  }\n}\n"
+                  },
+                  "mode.js": {
+                    "type": "file",
+                    "content": "import { getPrefs, setMode } from \"../lib/userPrefs.js\";\n\nfunction getArg(ctx) {\n  const t = String(ctx.message?.text || \"\").trim();\n  const parts = t.split(/\\s+/);\n  parts.shift();\n  return String(parts[0] || \"\").toLowerCase();\n}\n\nexport default function register(bot) {\n  bot.command(\"mode\", async (ctx) => {\n    const arg = getArg(ctx);\n    const userId = ctx.from?.id;\n\n    if (arg !== \"auto\" && arg !== \"manual\") {\n      const p = getPrefs(userId);\n      return ctx.reply(\n        `Pakai: /mode auto atau /mode manual. Status kamu sekarang: mode=${p.mode}.`\n      );\n    }\n\n    setMode(userId, arg);\n    return ctx.reply(`Oke, mode diset ke ${arg}.`);\n  });\n}\n"
+                  },
+                  "start.js": {
+                    "type": "file",
+                    "content": "import { getPrefs } from \"../lib/userPrefs.js\";\n\nexport default function register(bot) {\n  bot.command(\"start\", async (ctx) => {\n    const userId = ctx.from?.id;\n    const p = getPrefs(userId);\n\n    const lines = [\n      \"Halo. Aku bot penerjemah Bahasa Jawa ke Bahasa Inggris.\",\n      \"\", \n      \"Cara pakai: kirim teks Bahasa Jawa, nanti aku balas terjemahan Inggrisnya.\",\n      \"Contoh:\",\n      \"User: Aku arep lunga saiki\",\n      \"Bot: I want to leave now.\",\n      \"\", \n      `Status kamu sekarang: mode=${p.mode}, formalitas=${p.formal}.`,\n      \"\", \n      \"Ketik /help untuk panduan lengkap.\",\n    ];\n\n    await ctx.reply(lines.join(\"\\n\"));\n  });\n}\n"
+                  },
+                  "translate.js": {
+                    "type": "file",
+                    "content": "import { cfg } from \"../lib/config.js\";\nimport { getPrefs } from \"../lib/userPrefs.js\";\nimport { translateJvToEn } from \"../services/translator.js\";\n\nfunction getArgText(ctx) {\n  const t = String(ctx.message?.text || \"\");\n  const parts = t.split(\" \");\n  parts.shift();\n  return parts.join(\" \").trim();\n}\n\nexport default function register(bot) {\n  bot.command(\"translate\", async (ctx) => {\n    const replyText = ctx.message?.reply_to_message?.text;\n    const argText = getArgText(ctx);\n\n    const text = (replyText && String(replyText).trim()) || argText;\n\n    if (!text) {\n      return ctx.reply(\n        \"Pakai: /translate <teks> atau reply sebuah pesan lalu kirim /translate.\"\n      );\n    }\n\n    const p = getPrefs(ctx.from?.id);\n\n    const res = await translateJvToEn(cfg, { text, formal: p.formal });\n    if (!res.ok) return ctx.reply(res.error);\n\n    return ctx.reply(res.translation);\n  });\n}\n"
+                  }
+                }
+              },
+              "features": {
+                "type": "dir",
+                "children": {
+                  "agent.js": {
+                    "type": "file",
+                    "content": "import { cfg } from \"../lib/config.js\";\nimport { log, safeErr } from \"../lib/log.js\";\nimport { getPrefs } from \"../lib/userPrefs.js\";\nimport { translateJvToEn } from \"../services/translator.js\";\n\nconst perChat = new Map();\nlet globalInflight = 0;\nconst GLOBAL_CAP = 1;\n\nfunction lockKey(ctx) {\n  const chatId = ctx.chat?.id;\n  return String(chatId || ctx.from?.id || \"unknown\");\n}\n\nexport function registerAgent(bot) {\n  bot.on(\"message:text\", async (ctx, next) => {\n    const raw = String(ctx.message?.text || \"\");\n    if (raw.startsWith(\"/\")) return next();\n\n    const userId = ctx.from?.id;\n    const p = getPrefs(userId);\n    if (p.mode !== \"auto\") return next();\n\n    const key = lockKey(ctx);\n    if (perChat.get(key)) {\n      return ctx.reply(\"Aku masih ngerjain permintaanmu yang sebelumnya. Tunggu sebentar ya.\");\n    }\n    if (globalInflight >= GLOBAL_CAP) {\n      return ctx.reply(\"Lagi ramai. Coba lagi sebentar ya.\");\n    }\n\n    perChat.set(key, true);\n    globalInflight += 1;\n\n    const started = Date.now();\n    try {\n      const text = String(raw || \"\").trim();\n      if (!text) return next();\n\n      const res = await translateJvToEn(cfg, { text, formal: p.formal });\n      if (!res.ok) return ctx.reply(res.error);\n\n      try {\n        await ctx.reply(res.translation);\n      } catch (e) {\n        log.warn(\"telegram send fail\", { err: safeErr(e) });\n        // Fallback: send plain text anyway (no markdown used, so should be safe)\n        try {\n          await ctx.reply(String(res.translation || \"\"));\n        } catch (e2) {\n          log.error(\"telegram send fail (fallback)\", { err: safeErr(e2) });\n        }\n      }\n    } catch (e) {\n      log.error(\"agent translate error\", { err: safeErr(e), ms: Date.now() - started });\n      await ctx.reply(\"Maaf, ada error saat memproses pesan. Coba lagi ya.\");\n    } finally {\n      perChat.delete(key);\n      globalInflight = Math.max(0, globalInflight - 1);\n      const ms = Date.now() - started;\n      if (ms > 0) log.info(\"agent cycle\", { ms });\n    }\n  });\n}\n"
+                  }
+                }
+              },
+              "index.js": {
+                "type": "file",
+                "content": "import \"dotenv/config\";\n\nimport { run } from \"@grammyjs/runner\";\nimport { cfg } from \"./lib/config.js\";\nimport { log, safeErr } from \"./lib/log.js\";\nimport { createBot } from \"./bot.js\";\n\nprocess.on(\"unhandledRejection\", (r) => {\n  console.error(\"UnhandledRejection:\", r);\n  process.exit(1);\n});\nprocess.on(\"uncaughtException\", (e) => {\n  console.error(\"UncaughtException:\", e);\n  process.exit(1);\n});\n\nlet runner = null;\nlet restarting = false;\n\nfunction sleep(ms) {\n  return new Promise((r) => setTimeout(r, ms));\n}\n\nasync function startPollingWithRetry(bot) {\n  if (restarting) return;\n  restarting = true;\n\n  let backoff = 2000;\n  while (true) {\n    try {\n      log.info(\"polling start\");\n\n      try {\n        await bot.api.deleteWebhook({ drop_pending_updates: true });\n      } catch (e) {\n        log.warn(\"deleteWebhook failed\", { err: safeErr(e) });\n      }\n\n      runner = run(bot, { concurrency: 1 });\n      log.info(\"polling running\", { concurrency: 1 });\n      restarting = false;\n      return;\n    } catch (e) {\n      const msg = safeErr(e);\n\n      // 409 happens on deploy overlap. Backoff and retry.\n      log.warn(\"polling failed\", { err: msg, backoffMs: backoff });\n      await sleep(backoff);\n      backoff = Math.min(20000, Math.round(backoff * 1.7));\n\n      try {\n        if (runner) {\n          runner.abort();\n          runner = null;\n        }\n      } catch {}\n    }\n  }\n}\n\nasync function boot() {\n  log.info(\"boot\", {\n    TELEGRAM_BOT_TOKEN_set: !!cfg.TELEGRAM_BOT_TOKEN,\n    COOKMYBOTS_AI_ENDPOINT_set: !!cfg.COOKMYBOTS_AI_ENDPOINT,\n    COOKMYBOTS_AI_KEY_set: !!cfg.COOKMYBOTS_AI_KEY,\n  });\n\n  if (!cfg.TELEGRAM_BOT_TOKEN) {\n    console.error(\n      \"TELEGRAM_BOT_TOKEN is required. Set it in your environment and redeploy.\"\n    );\n    process.exit(1);\n  }\n\n  if (!cfg.COOKMYBOTS_AI_ENDPOINT || !cfg.COOKMYBOTS_AI_KEY) {\n    log.warn(\"AI gateway not fully configured; translation will fail until set\", {\n      COOKMYBOTS_AI_ENDPOINT_set: !!cfg.COOKMYBOTS_AI_ENDPOINT,\n      COOKMYBOTS_AI_KEY_set: !!cfg.COOKMYBOTS_AI_KEY,\n    });\n  }\n\n  const bot = createBot(cfg.TELEGRAM_BOT_TOKEN);\n\n  try {\n    await bot.init();\n  } catch (e) {\n    log.warn(\"bot.init failed\", { err: safeErr(e) });\n  }\n\n  try {\n    await bot.api.setMyCommands([\n      { command: \"start\", description: \"Mulai dan lihat status\" },\n      { command: \"help\", description: \"Panduan pemakaian\" },\n      { command: \"translate\", description: \"Terjemahkan teks / reply\" },\n      { command: \"mode\", description: \"Ubah mode auto/manual\" },\n      { command: \"formal\", description: \"Ubah gaya: neutral/formal/casual\" },\n      { command: \"detect\", description: \"Deteksi kemungkinan Bahasa Jawa\" },\n    ]);\n  } catch (e) {\n    log.warn(\"setMyCommands failed\", { err: safeErr(e) });\n  }\n\n  // Memory log (lightweight)\n  setInterval(() => {\n    const m = process.memoryUsage();\n    console.log(\n      \"[mem]\",\n      JSON.stringify({\n        rssMB: Math.round(m.rss / 1e6),\n        heapUsedMB: Math.round(m.heapUsed / 1e6),\n      })\n    );\n  }, 60000).unref();\n\n  await startPollingWithRetry(bot);\n}\n\nboot();\n"
+              },
+              "lib": {
+                "type": "dir",
+                "children": {
+                  "ai.js": {
+                    "type": "file",
+                    "content": "import { log, safeErr } from \"./log.js\";\n\nfunction trimSlash(u) {\n  u = String(u || \"\");\n  while (u.endsWith(\"/\")) u = u.slice(0, -1);\n  return u;\n}\n\nfunction withTimeout(ms) {\n  const ctrl = new AbortController();\n  const t = setTimeout(() => ctrl.abort(), ms);\n  return { ctrl, clear: () => clearTimeout(t) };\n}\n\nfunction pickTimeout(cfg) {\n  const v = Number(cfg?.AI_TIMEOUT_MS || 600000);\n  return Number.isFinite(v) && v > 0 ? v : 600000;\n}\n\nfunction pickModel(cfg, override) {\n  const m = String(override || cfg?.AI_MODEL || \"\").trim();\n  return m || undefined;\n}\n\nasync function safeReadJson(res) {\n  const text = await res.text();\n  try {\n    return { text, json: JSON.parse(text) };\n  } catch {\n    return { text, json: null };\n  }\n}\n\nexport async function aiChat(cfg, { messages, model, meta } = {}) {\n  const base = trimSlash(cfg?.COOKMYBOTS_AI_ENDPOINT || \"\");\n  const key = String(cfg?.COOKMYBOTS_AI_KEY || \"\");\n\n  if (!base || !key) {\n    return {\n      ok: false,\n      status: 412,\n      output: null,\n      error: \"AI_NOT_CONFIGURED (missing COOKMYBOTS_AI_ENDPOINT/COOKMYBOTS_AI_KEY)\",\n    };\n  }\n\n  const timeoutMs = pickTimeout(cfg);\n  const url = base + \"/chat\";\n\n  const started = Date.now();\n  const charCount = Array.isArray(messages)\n    ? messages.reduce((n, m) => n + String(m?.content || \"\").length, 0)\n    : 0;\n\n  log.info(\"ai.chat start\", {\n    feature: \"translate\",\n    timeoutMs,\n    modelSet: !!pickModel(cfg, model),\n    messagesCount: Array.isArray(messages) ? messages.length : 0,\n    charCount,\n  });\n\n  const { ctrl, clear } = withTimeout(timeoutMs);\n  try {\n    const res = await fetch(url, {\n      method: \"POST\",\n      headers: {\n        Authorization: \"Bearer \" + key,\n        \"Content-Type\": \"application/json\",\n      },\n      body: JSON.stringify({\n        messages: Array.isArray(messages) ? messages : [],\n        model: pickModel(cfg, model),\n        meta: meta || undefined,\n      }),\n      signal: ctrl.signal,\n    });\n\n    const { json } = await safeReadJson(res);\n\n    if (!res.ok) {\n      const msg =\n        json?.error ||\n        json?.message ||\n        \"AI_ERROR\";\n\n      log.warn(\"ai.chat fail\", {\n        feature: \"translate\",\n        status: res.status,\n        ms: Date.now() - started,\n        err: String(msg).slice(0, 400),\n      });\n\n      return { ok: false, status: res.status, output: null, error: String(msg) };\n    }\n\n    const out = json?.output || null;\n    const content = out?.type === \"chat\" ? String(out?.content || \"\") : \"\";\n\n    log.info(\"ai.chat success\", {\n      feature: \"translate\",\n      status: res.status,\n      ms: Date.now() - started,\n      outType: out?.type || \"\",\n      outChars: content.length,\n    });\n\n    return { ok: true, status: res.status, output: out, error: null };\n  } catch (e) {\n    const msg = safeErr(e);\n    log.warn(\"ai.chat exception\", {\n      feature: \"translate\",\n      ms: Date.now() - started,\n      err: String(msg).slice(0, 400),\n    });\n    return { ok: false, status: e?.name === \"AbortError\" ? 408 : 0, output: null, error: msg };\n  } finally {\n    clear();\n  }\n}\n"
+                  },
+                  "botProfile.js": {
+                    "type": "file",
+                    "content": "export function buildBotProfile() {\n  return [\n    \"Bot Profile:\",\n    \"Tujuan: menerjemahkan Bahasa Jawa (ngoko/krama campur) ke Bahasa Inggris.\",\n    \"Perintah publik: /start, /help, /translate, /mode, /formal, /detect.\",\n    \"Aturan:\",\n    \"- Mode auto: setiap pesan teks biasa (bukan command) diterjemahkan otomatis.\",\n    \"- Mode manual: pesan teks biasa tidak diterjemahkan; hanya via /translate.\",\n    \"- Formalitas output English mengikuti setting user: neutral/formal/casual.\",\n    \"- Batas input: teks panjang akan diminta dipecah.\",\n    \"- Privasi: bot tidak menyimpan data permanen; preferensi disimpan di memori runtime dan hilang saat bot restart.\",\n    \"- Jika user meminta penjelasan, boleh memberi penjelasan. Selain itu, hasilkan hanya terjemahannya.\",\n  ].join(\"\\n\");\n}\n"
+                  },
+                  "config.js": {
+                    "type": "file",
+                    "content": "export const cfg = {\n  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,\n\n  // CookMyBots AI Gateway (required for translation features)\n  // Base URL only, example: https://api.cookmybots.com/api/ai\n  COOKMYBOTS_AI_ENDPOINT: process.env.COOKMYBOTS_AI_ENDPOINT || \"\",\n  COOKMYBOTS_AI_KEY: process.env.COOKMYBOTS_AI_KEY || \"\",\n\n  AI_MODEL: process.env.AI_MODEL || \"\",\n  AI_DEBUG: String(process.env.AI_DEBUG || \"0\") === \"1\",\n\n  // 10 minutes default (media/slow calls). Can be overridden.\n  AI_TIMEOUT_MS: Number(process.env.AI_TIMEOUT_MS || 600000),\n};\n"
+                  },
+                  "db.js": {
+                    "type": "file",
+                    "content": "\n      import { MongoClient } from \"mongodb\";\n\nlet _client = null;\nlet _db = null;\n\nexport async function getDb(mongoUri) {\n  if (!mongoUri) return null;\n  if (_db) return _db;\n\n  _client = new MongoClient(mongoUri, { maxPoolSize: 5 });\n  await _client.connect();\n  _db = _client.db(); // default DB from URI\n  return _db;\n}"
+                  },
+                  "jawaDetect.js": {
+                    "type": "file",
+                    "content": "const COMMON = [\n  \"aku\",\n  \"kowe\",\n  \"koe\",\n  \"sampeyan\",\n  \"panjenengan\",\n  \"ora\",\n  \"ndak\",\n  \"gak\",\n  \"nggih\",\n  \"iya\",\n  \"piye\",\n  \"piye kabare\",\n  \"wes\",\n  \"wis\",\n  \"arep\",\n  \"arepe\",\n  \"mangan\",\n  \"turu\",\n  \"lungo\",\n  \"bali\",\n  \"kapan\",\n  \"ngendi\",\n  \"opo\",\n  \"apa\",\n  \"monggo\",\n  \"mboten\",\n  \"nopo\",\n  \"kulo\",\n  \"samangke\",\n];\n\nexport function isLikelyJavanese(text) {\n  const t = String(text || \"\")\n    .toLowerCase()\n    .replace(/[^a-z\\s']/g, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n  if (!t) return false;\n\n  const words = new Set(t.split(\" \").filter(Boolean));\n\n  let hits = 0;\n  for (const w of COMMON) {\n    const key = w.includes(\" \") ? null : w;\n    if (key && words.has(key)) hits += 1;\n    if (!key && t.includes(w)) hits += 1;\n  }\n\n  // Very rough heuristic: 2+ common tokens suggests Javanese.\n  return hits >= 2;\n}\n"
+                  },
+                  "log.js": {
+                    "type": "file",
+                    "content": "export function safeErr(err) {\n  return (\n    err?.response?.data?.error?.message ||\n    err?.response?.data?.message ||\n    err?.message ||\n    String(err)\n  );\n}\n\nfunction toMeta(meta) {\n  if (!meta || typeof meta !== \"object\") return {};\n  try {\n    return JSON.parse(JSON.stringify(meta));\n  } catch {\n    return { meta: \"[unserializable]\" };\n  }\n}\n\nexport const log = {\n  info(msg, meta) {\n    console.log(JSON.stringify({ level: \"info\", msg, ...toMeta(meta) }));\n  },\n  warn(msg, meta) {\n    console.warn(JSON.stringify({ level: \"warn\", msg, ...toMeta(meta) }));\n  },\n  error(msg, meta) {\n    console.error(JSON.stringify({ level: \"error\", msg, ...toMeta(meta) }));\n  },\n};\n"
+                  },
+                  "memory.js": {
+                    "type": "file",
+                    "content": "\n      import { getDb } from \"./db.js\";\n\nconst COL = \"memory_messages\";\n\nexport async function addTurn({ mongoUri, platform, userId, chatId, role, text }) {\n  const db = await getDb(mongoUri);\n  const doc = {\n    platform,\n    userId: String(userId),\n    chatId: chatId ? String(chatId) : \"\",\n    role,\n    text: String(text || \"\").slice(0, 4000),\n    ts: new Date(),\n  };\n\n  if (!db) return; // allow bot to run without DB\n  await db.collection(COL).insertOne(doc);\n}\n\nexport async function getRecentTurns({ mongoUri, platform, userId, chatId, limit = 14 }) {\n  const db = await getDb(mongoUri);\n  if (!db) return [];\n\n  const q = {\n    platform,\n    userId: String(userId),\n  };\n  if (chatId) q.chatId = String(chatId);\n\n  const rows = await db\n    .collection(COL)\n    .find(q)\n    .sort({ ts: -1 })\n    .limit(limit)\n    .toArray();\n\n  // return chronological\n  return rows.reverse().map((r) => ({ role: r.role, text: r.text }));\n}\n\nexport async function clearUserMemory({ mongoUri, platform, userId, chatId }) {\n  const db = await getDb(mongoUri);\n  if (!db) return;\n\n  const q = { platform, userId: String(userId) };\n  if (chatId) q.chatId = String(chatId);\n\n  await db.collection(COL).deleteMany(q);\n}"
+                  },
+                  "userPrefs.js": {
+                    "type": "file",
+                    "content": "const store = new Map();\n\nexport const DEFAULT_PREFS = Object.freeze({\n  mode: \"auto\", // auto | manual\n  formal: \"neutral\", // neutral | formal | casual\n});\n\nexport function getPrefs(userId) {\n  const id = String(userId || \"\");\n  const v = store.get(id);\n  if (v && typeof v === \"object\") return v;\n  const fresh = { ...DEFAULT_PREFS };\n  store.set(id, fresh);\n  return fresh;\n}\n\nexport function setMode(userId, mode) {\n  const p = getPrefs(userId);\n  p.mode = mode;\n}\n\nexport function setFormal(userId, formal) {\n  const p = getPrefs(userId);\n  p.formal = formal;\n}\n"
+                  }
+                }
+              },
+              "services": {
+                "type": "dir",
+                "children": {
+                  "translator.js": {
+                    "type": "file",
+                    "content": "import { aiChat } from \"../lib/ai.js\";\nimport { buildBotProfile } from \"../lib/botProfile.js\";\n\nfunction clampText(text, maxChars) {\n  const t = String(text || \"\");\n  if (t.length <= maxChars) return { ok: true, text: t };\n  return { ok: false, text: t.slice(0, maxChars) };\n}\n\nexport async function translateJvToEn(cfg, { text, formal = \"neutral\" } = {}) {\n  const MAX_CHARS = 2500;\n  const clamped = clampText(text, MAX_CHARS);\n  if (!clamped.ok) {\n    return {\n      ok: false,\n      error: `Teksnya kepanjangan (maks ${MAX_CHARS} karakter). Tolong pecah jadi beberapa pesan.`,\n      translation: \"\",\n    };\n  }\n\n  const styleLine =\n    formal === \"formal\"\n      ? \"Use a more formal, polite, professional English style.\"\n      : formal === \"casual\"\n        ? \"Use a casual, relaxed English style.\"\n        : \"Use a neutral standard English style.\";\n\n  const system = [\n    buildBotProfile(),\n    \"\", \n    \"You are a translation engine.\",\n    \"Task: Translate from Javanese (can be ngoko/krama mix) to English.\",\n    \"Preserve meaning, context, and tone.\",\n    styleLine,\n    \"Output rules:\",\n    \"- Output ONLY the English translation.\",\n    \"- Keep line breaks if the input has multiple lines.\",\n    \"- Do not add explanations unless the user explicitly asks for an explanation.\",\n  ].join(\"\\n\");\n\n  const res = await aiChat(cfg, {\n    messages: [\n      { role: \"system\", content: system },\n      { role: \"user\", content: String(clamped.text || \"\") },\n    ],\n    meta: { platform: \"telegram\", feature: \"jv_to_en\" },\n  });\n\n  const content = res?.output?.type === \"chat\" ? String(res.output.content || \"\") : \"\";\n\n  if (!res?.ok || !content.trim()) {\n    return {\n      ok: false,\n      error:\n        res?.status === 412\n          ? \"Fitur AI belum dikonfigurasi. Minta admin set COOKMYBOTS_AI_ENDPOINT dan COOKMYBOTS_AI_KEY.\"\n          : \"Maaf, lagi ada masalah saat menerjemahkan. Coba lagi sebentar ya.\",\n      translation: \"\",\n    };\n  }\n\n  return { ok: true, translation: content, error: null };\n}\n"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "commands": [
+          {
+            "command": "/detect",
+            "description": "Deteksi heuristik ringan apakah teks kemungkinan Bahasa Jawa.",
+            "usage": "/detect <teks> atau reply pesan lalu kirim /detect",
+            "examples": [
+              "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate."
+            ],
+            "example": "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate.",
+            "notes": "Heuristik ringan, tidak selalu akurat."
+          },
+          {
+            "command": "/formal",
+            "description": "Mengatur gaya bahasa Inggris: neutral, formal, atau casual.",
+            "usage": "/formal neutral|formal|casual",
+            "examples": [
+              "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+              "User: /formal casual → Bot: Oke, formalitas diset ke casual."
+            ],
+            "example": "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+            "notes": "Default adalah neutral."
+          },
+          {
+            "command": "/help",
+            "description": "Panduan lengkap semua fitur dan contoh pemakaian.",
+            "usage": "/help",
+            "examples": [
+              "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect"
+            ],
+            "example": "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect",
+            "notes": "Hanya menjelaskan perintah yang benar-benar tersedia."
+          },
+          {
+            "command": "/mode",
+            "description": "Mengatur mode auto atau manual.",
+            "usage": "/mode auto atau /mode manual",
+            "examples": [
+              "User: /mode auto → Bot: Oke, mode diset ke auto.",
+              "User: /mode manual → Bot: Oke, mode diset ke manual."
+            ],
+            "example": "User: /mode auto → Bot: Oke, mode diset ke auto.",
+            "notes": "Mode auto menerjemahkan semua pesan teks biasa (non-command)."
+          },
+          {
+            "command": "/start",
+            "description": "Sambutan singkat + cara pakai + status setting kamu (mode dan formalitas).",
+            "usage": "/start",
+            "examples": [
+              "User: /start → Bot: menjelaskan cara pakai dan status mode/formal"
+            ],
+            "example": "User: /start → Bot: menjelaskan cara pakai dan status mode/formal",
+            "notes": "Preferensi disimpan di memori runtime dan akan reset kalau bot restart."
+          },
+          {
+            "command": "/translate",
+            "description": "Menerjemahkan teks Jawa ke Inggris dari argumen atau dari pesan yang direply.",
+            "usage": "/translate <teks> atau reply pesan lalu kirim /translate",
+            "examples": [
+              "User: /translate Kowe piye kabare? → Bot: How are you?",
+              "User: (reply pesan) /translate → Bot: (terjemahan dari pesan reply)"
+            ],
+            "example": "User: /translate Kowe piye kabare? → Bot: How are you?",
+            "notes": "Jika tidak ada teks, bot akan memberi instruksi penggunaan."
+          }
+        ],
+        "envVarDocs": [
+          {
+            "key": "TELEGRAM_BOT_TOKEN",
+            "title": "Telegram Bot Token",
+            "description": "Token bot dari BotFather untuk menjalankan bot Telegram.",
+            "usage": "Dipakai saat startup untuk membuat instance grammY Bot.",
+            "howToGet": "Buat bot lewat BotFather, lalu copy tokennya.",
+            "example": "123456789:ABCDEF-your-token",
+            "isSecret": true,
+            "required": true
+          },
+          {
+            "key": "COOKMYBOTS_AI_ENDPOINT",
+            "title": "CookMyBots AI Endpoint",
+            "description": "Base URL untuk CookMyBots AI Gateway (jangan tambahkan /chat).",
+            "usage": "Bot akan memanggil {COOKMYBOTS_AI_ENDPOINT}/chat untuk terjemahan.",
+            "howToGet": "Dari konfigurasi CookMyBots AI Gateway project kamu.",
+            "example": "https://api.cookmybots.com/api/ai",
+            "isSecret": false,
+            "required": true
+          },
+          {
+            "key": "COOKMYBOTS_AI_KEY",
+            "title": "CookMyBots AI Key",
+            "description": "API key untuk otentikasi ke CookMyBots AI Gateway.",
+            "usage": "Dikirim sebagai header Authorization: Bearer <key> saat memanggil gateway.",
+            "howToGet": "Dari dashboard CookMyBots untuk project kamu.",
+            "example": "cmb_ai_... (format saja)",
+            "isSecret": true,
+            "required": true
+          },
+          {
+            "key": "AI_TIMEOUT_MS",
+            "title": "AI Timeout (ms)",
+            "description": "Batas waktu maksimal untuk request ke AI Gateway.",
+            "usage": "Dipakai oleh helper aiChat untuk AbortController timeout.",
+            "howToGet": "Opsional, set manual di env bila perlu.",
+            "example": "600000",
+            "isSecret": false,
+            "required": false
+          },
+          {
+            "key": "AI_MODEL",
+            "title": "AI Model",
+            "description": "Nama model opsional untuk diteruskan ke AI Gateway.",
+            "usage": "Jika kosong, gateway akan memakai default model.",
+            "howToGet": "Opsional, tergantung konfigurasi gateway kamu.",
+            "example": "gpt-4.1-mini (contoh saja)",
+            "isSecret": false,
+            "required": false
+          }
+        ],
+        "commandDocs": [
+          {
+            "command": "/start",
+            "description": "Sambutan singkat + cara pakai + status setting kamu (mode dan formalitas).",
+            "usage": "/start",
+            "examples": [
+              "User: /start → Bot: menjelaskan cara pakai dan status mode/formal"
+            ],
+            "notes": "Preferensi disimpan di memori runtime dan akan reset kalau bot restart."
+          },
+          {
+            "command": "/help",
+            "description": "Panduan lengkap semua fitur dan contoh pemakaian.",
+            "usage": "/help",
+            "examples": [
+              "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect"
+            ],
+            "notes": "Hanya menjelaskan perintah yang benar-benar tersedia."
+          },
+          {
+            "command": "/translate",
+            "description": "Menerjemahkan teks Jawa ke Inggris dari argumen atau dari pesan yang direply.",
+            "usage": "/translate <teks> atau reply pesan lalu kirim /translate",
+            "examples": [
+              "User: /translate Kowe piye kabare? → Bot: How are you?",
+              "User: (reply pesan) /translate → Bot: (terjemahan dari pesan reply)"
+            ],
+            "notes": "Jika tidak ada teks, bot akan memberi instruksi penggunaan."
+          },
+          {
+            "command": "/mode",
+            "description": "Mengatur mode auto atau manual.",
+            "usage": "/mode auto atau /mode manual",
+            "examples": [
+              "User: /mode auto → Bot: Oke, mode diset ke auto.",
+              "User: /mode manual → Bot: Oke, mode diset ke manual."
+            ],
+            "notes": "Mode auto menerjemahkan semua pesan teks biasa (non-command)."
+          },
+          {
+            "command": "/formal",
+            "description": "Mengatur gaya bahasa Inggris: neutral, formal, atau casual.",
+            "usage": "/formal neutral|formal|casual",
+            "examples": [
+              "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+              "User: /formal casual → Bot: Oke, formalitas diset ke casual."
+            ],
+            "notes": "Default adalah neutral."
+          },
+          {
+            "command": "/detect",
+            "description": "Deteksi heuristik ringan apakah teks kemungkinan Bahasa Jawa.",
+            "usage": "/detect <teks> atau reply pesan lalu kirim /detect",
+            "examples": [
+              "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate."
+            ],
+            "notes": "Heuristik ringan, tidak selalu akurat."
+          }
+        ],
+        "aiMessages": [
+          {
+            "role": "user",
+            "content": "buatkan bot translate bahasa jawa ke bahasa inggris"
+          },
+          {
+            "role": "assistant",
+            "content": "Project Telegram grammY untuk terjemahan Jawa→Inggris sudah dibuat sesuai spec: mode auto/manual, /translate (arg atau reply), /formal, /detect (heuristik), validasi input + batas panjang, helper AI Gateway yang selalu menyisipkan Bot Profile lewat system prompt, logger + safeErr, startup env sanity logs, dan polling long-running yang robust pakai @grammyjs/runner. Tidak ada database dan preferensi disimpan in-memory (reset saat restart). DOCS.md dan .env.sample juga sudah disiapkan.\n\nFiles touched (21): .env.sample, DOCS.md, package.json, project.json, src/bot.js, src/commands/detect.js…\nValidation: ✅ project passes syntax/basic checks after this edit."
+          }
+        ],
+        "createdBy": "",
+        "source": "",
+        "description": "",
+        "planMarkdown": "Bot: Telegram Bot: Penerjemah Bahasa Jawa ke Bahasa Inggris\n\nSummary:\nBot Telegram ini membantu pengguna menerjemahkan teks Bahasa Jawa (ngoko, krama, campuran) ke Bahasa Inggris dengan pengalaman chat yang sederhana dan cepat. Fokus utama adalah akurasi terjemahan yang konsisten, transparansi (memberi tahu batasan/ketidakpastian), serta keandalan operasional untuk penggunaan produksi.\n\nBot dirancang sebagai satu layanan Node.js (ESM) menggunakan grammY. Persistensi memakai MongoDB untuk menyimpan preferensi pengguna, riwayat singkat, statistik penggunaan, serta log error terstruktur. Integrasi model terjemahan dapat berupa API pihak ketiga atau model internal; arsitektur dibuat agar komponen penerjemah bisa diganti tanpa mengubah alur bot.\n\nProduct goals:\nTujuan utama produk:\n1) Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris dengan latensi rendah dan hasil yang mudah dibaca.\n2) Mendukung variasi bahasa Jawa (ngoko/krama) serta teks campuran Jawa-Indonesia.\n3) Menyediakan kontrol pengguna: mode formal/informal English, preferensi gaya, dan opsi untuk menampilkan romanisasi atau penjelasan istilah tertentu.\n4) Aman dan siap produksi: pembatasan laju, perlindungan dari spam, logging, dan pemantauan kesehatan.\n\nRuang lingkup MVP (minimum viable product):\n1) Terjemahkan pesan teks yang dikirim pengguna (atau reply ke pesan) dari Jawa ke Inggris.\n2) Deteksi bahasa ringan (untuk menghindari menerjemahkan teks yang jelas bukan Jawa) dan fallback yang jelas.\n3) Pengaturan dasar per pengguna: gaya English (formal/informal), panjang output (ringkas/normal), dan opsi mempertahankan istilah asli.\n\nKriteria sukses:\n1) Pengguna bisa menerjemahkan dengan satu langkah: kirim pesan, bot membalas terjemahan.\n2) Tingkat kegagalan rendah (error rate), dengan pesan error yang informatif.\n3) Bot tetap responsif saat beban meningkat, dengan kontrol antrian internal dan rate limiting.\n\nHigh-level architecture:\nGambaran tingkat tinggi (single process):\n1) Telegram layer (grammY): menerima update, routing command, middleware, dan handler pesan.\n2) Application layer: use-case seperti TranslateText, SetPreference, DetectLanguage, UsageAccounting.\n3) Translation provider adapter: antarmuka generik (translate(sourceText, options)) yang dapat diimplementasikan oleh berbagai penyedia (API atau engine internal). Tujuannya mengisolasi ketergantungan vendor/model.\n4) Persistence layer (MongoDB): menyimpan user profile, preferences, usage counters, dan event log ringkas.\n5) Observability: structured logging, error tracking (internal), metrik dasar (jumlah request, latensi, error, token/biaya jika relevan) disimpan di MongoDB atau log aggregator berbasis file.\n\nPrinsip desain:\n1) Idempotensi: setiap update diproses aman tanpa efek samping berulang (misalnya, mencegah double-translate akibat retry webhook/polling).\n2) Bounded work per update: batasi ukuran input, batasi waktu pemrosesan, dan batasi jumlah panggilan ke provider per pesan.\n3) Degradasi yang baik: jika provider down/timeout, bot memberi respons ramah dan menyarankan coba lagi.\n\nMode penerimaan update:\n1) Direkomendasikan webhook untuk produksi agar latensi dan efisiensi lebih baik.\n2) Long polling dapat menjadi fallback saat pengaturan webhook tidak memungkinkan.\n\nKinerja dan kontrol beban:\n1) Rate limiting per user dan global untuk mencegah spam dan menjaga biaya.\n2) Concurrency control internal: batasi jumlah terjemahan paralel (misalnya per proses) agar tidak menumpuk dan menurunkan respons.\n3) Timeout dan retry terkontrol untuk panggilan ke translation provider (retry hanya untuk error yang aman).\n\nData model:\nKoleksi: users\n1) userId (number, unique)\n2) createdAt, updatedAt\n3) locale (string, optional) untuk bahasa UI bot\n4) preferences:\n   1) englishStyle: formal | informal\n   2) outputLength: short | normal\n   3) keepJavaneseTerms: boolean\n   4) showNotes: boolean (catatan istilah/ungkapan)\n   5) defaultMode: auto | forcejvtoen\n5) limits:\n   1) dailyCount\n   2) dailyResetAt\n\nKoleksi: translations (opsional, untuk kualitas/UX)\n1) id\n2) userId\n3) chatId\n4) messageId\n5) sourceText (dipotong/di-hash jika ingin minim data sensitif)\n6) detectedSource: jv | id | en | unknown\n7) resultText\n8) providerMeta:\n   1) providerName\n   2) latencyMs\n   3) costUnits (jika ada)\n9) createdAt\n\nKoleksi: usageevents (opsional, untuk analytics dan debugging)\n1) id\n2) eventType: translaterequest | translatesuccess | translateerror | command\n3) userId, chatId\n4) timestamp\n5) payload ringan (misalnya panjang teks, kategori error, bukan isi penuh teks)\n\nKoleksi: idempotency (opsional, jika dibutuhkan)\n1) key: gabungan chatId:messageId atau updateid\n2) processedAt\n3) ttl index agar otomatis hilang\n\nCatatan privasi:\n1) Untuk produksi, default sebaiknya tidak menyimpan teks lengkap tanpa alasan kuat.\n2) Simpan hash atau potongan singkat untuk korelasi error, dan sediakan opsi /privacy untuk penjelasan serta /forget untuk menghapus data.\n\nKey flows:\nFlow 1: Terjemahkan pesan teks (utama)\n1) User mengirim pesan teks ke bot (private chat) atau mention/reply di grup (jika diaktifkan).\n2) Middleware validasi:\n   1) Cek rate limit.\n   2) Cek ukuran teks (maks karakter) dan normalisasi whitespace.\n   3) Cek idempotensi (hindari proses ulang).\n3) Deteksi mode:\n   1) Jika user memakai /translate atau reply, paksa translate.\n   2) Jika mode auto, lakukan deteksi ringan (heuristik atau via provider) untuk menilai apakah teks kemungkinan Jawa.\n4) Panggil Translation provider adapter dengan opsi dari preferences.\n5) Format output:\n   1) Balas dengan hasil English.\n   2) Jika showNotes aktif dan tersedia, sertakan catatan singkat (misalnya istilah krama yang bermakna sopan).\n6) Simpan event ringkas ke MongoDB (opsional) dan update counter harian.\n\nFlow 2: Terjemahkan dengan reply\n1) User me-reply pesan orang lain dengan perintah /translate.\n2) Bot mengambil teks dari replied message.\n3) Lanjut seperti Flow 1.\n\nFlow 3: Pengaturan pengguna\n1) User membuka /settings.\n2) Bot menampilkan opsi (inline keyboard) untuk:\n   1) English formal/informal\n   2) Output ringkas/normal\n   3) Simpan istilah Jawa (on/off)\n   4) Catatan istilah (on/off)\n3) Pilihan disimpan di users.preferences.\n\nFlow 4: Batas harian dan anti-spam\n1) Setiap request menambah dailyCount.\n2) Jika melewati batas, bot menolak dengan pesan yang jelas dan waktu reset.\n3) Admin dapat menaikkan limit untuk user tertentu (opsional) atau menonaktifkan bot di chat tertentu.\n\nFlow 5: Error handling dan fallback\n1) Timeout ke provider: bot kirim pesan singkat bahwa layanan sedang sibuk, sarankan ulangi.\n2) Error validasi input: bot minta user memendekkan teks atau menghapus format aneh.\n3) Provider mengembalikan hasil kosong: bot minta user coba dengan kalimat lebih lengkap.\n\nFlow 6: Grup (opsional)\n1) Bot hanya merespons jika:\n   1) Pesan diawali trigger seperti \"jv:\" atau\n   2) Bot di-mention, atau\n   3) Pesan adalah reply ke bot\n2) Ini menghindari spam dan gangguan di grup.\n\nTech stack:\nRuntime dan bahasa:\n1) Node.js (ESM) sebagai satu proses layanan.\n2) grammY sebagai framework Telegram bot.\n\nKonfigurasi dan secrets:\n1) TELEGRAMBOTTOKEN dari environment variables.\n2) Konfigurasi tambahan via environment variables: MongoDB connection string, mode webhook/polling, base URL webhook, batas harian, timeout provider.\n\nPersistensi:\n1) MongoDB untuk users, usage, dan log ringkas.\n2) In-memory maps untuk cache sementara (misalnya rate-limit window, concurrency semaphore) dengan asumsi bisa hilang saat restart.\n\nIntegrasi penerjemahan:\n1) Translation provider adapter (abstraksi) agar bisa memakai layanan terjemahan eksternal atau model internal.\n2) Kebijakan timeout, retry terbatas, dan circuit breaker sederhana di level aplikasi untuk menjaga stabilitas.\n\nPenyimpanan file (jika nanti ada fitur voice/image):\n1) Object storage atau simple filesystem storage untuk menyimpan artefak sementara (misalnya audio hasil STT), dengan pembersihan terjadwal.\n\nDeployment:\n1) Satu Node.js server di cloud.\n2) Ekspos endpoint webhook jika memakai webhook; jika polling, tidak perlu inbound.\n3) Health check endpoint internal (opsional) untuk monitoring.\n\nOperasional:\n1) Logging terstruktur ke stdout dan/atau file.\n2) Monitoring metrik aplikasi secara ringan (latensi, error rate) melalui log dan koleksi usageevents di MongoDB.\n\nNon-functional requirements:\nKeandalan:\n1) Timeout ketat untuk panggilan provider dan batas ukuran input.\n2) Idempotensi untuk mencegah duplikasi proses.\n3) Graceful degradation saat provider bermasalah.\n\nKeamanan:\n1) Validasi input dan sanitasi (hindari format yang memicu parsing berlebihan).\n2) Rate limiting per user dan per chat.\n3) Batasi fitur grup untuk mencegah penyalahgunaan.\n4) Minimalkan data sensitif yang disimpan; dukung penghapusan data.\n\nPrivasi dan kepatuhan:\n1) Jelaskan di /privacy data apa yang disimpan (misalnya preferensi, counter, log ringkas).\n2) Default tidak menyimpan isi teks lengkap atau simpan hanya untuk periode singkat dengan TTL.\n\nKinerja:\n1) Concurrency limit untuk request terjemahan.\n2) Cache hasil terjemahan jangka pendek (opsional) berdasarkan hash input + opsi untuk mengurangi biaya dan latensi.\n\nKualitas terjemahan:\n1) Normalisasi teks (spasi, tanda baca) sebelum diterjemahkan.\n2) Opsi mempertahankan istilah budaya yang sulit diterjemahkan.\n3) Mode formal/informal untuk output English.\n4) Mekanisme feedback pengguna untuk perbaikan (misalnya /feedback).\n\nMaintainability:\n1) Arsitektur berlapis dengan adapter provider.\n2) Konfigurasi berbasis environment variables.\n3) Logging dan event yang cukup untuk debugging tanpa menyimpan konten sensitif.\n\nTesting (konsep, tanpa implementasi kode):\n1) Unit test untuk parsing command, validasi input, dan formatting output.\n2) Integration test untuk adapter provider dengan mock.\n3) End-to-end test skenario Telegram (simulasi update) untuk command utama.\n\nBot commands:\n• /start — Memulai bot dan menampilkan cara pakai cepat untuk translate Jawa ke Inggris. (usage: /start) [General]\n• /help — Menampilkan panduan lengkap, contoh, dan tips agar hasil terjemahan lebih baik. (usage: /help) [General]\n• /translate — Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris. Bisa dipakai langsung atau dengan reply ke pesan. (usage: 1) /translate Aku arep lungo saiki\n2) Reply sebuah pesan lalu kirim /translate) [Translation]\n• /settings — Mengatur preferensi terjemahan seperti formal/informal, ringkas/normal, dan catatan istilah. (usage: /settings) [Preferences]\n• /mode — Mengubah mode: auto (deteksi) atau paksa terjemahkan Jawa ke Inggris untuk setiap pesan. (usage: 1) /mode auto\n2) /mode force) [Preferences]\n• /privacy — Menjelaskan data apa yang disimpan dan untuk apa, serta opsi penghapusan data. (usage: /privacy) [Compliance]\n• /forget — Menghapus data pengguna (preferensi dan catatan penggunaan) dari database. (usage: /forget) [Compliance]\n• /feedback — Mengirim masukan tentang kualitas terjemahan atau melaporkan hasil yang salah. (usage: /feedback Terjemahan kata 'monggo' sebaiknya ...) [Support]\n• /status — Menampilkan status singkat bot dan limit pemakaian harian pengguna. (usage: /status) [General]\n",
+        "planSections": {
+          "productGoals": "Tujuan utama produk:\n1) Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris dengan latensi rendah dan hasil yang mudah dibaca.\n2) Mendukung variasi bahasa Jawa (ngoko/krama) serta teks campuran Jawa-Indonesia.\n3) Menyediakan kontrol pengguna: mode formal/informal English, preferensi gaya, dan opsi untuk menampilkan romanisasi atau penjelasan istilah tertentu.\n4) Aman dan siap produksi: pembatasan laju, perlindungan dari spam, logging, dan pemantauan kesehatan.\n\nRuang lingkup MVP (minimum viable product):\n1) Terjemahkan pesan teks yang dikirim pengguna (atau reply ke pesan) dari Jawa ke Inggris.\n2) Deteksi bahasa ringan (untuk menghindari menerjemahkan teks yang jelas bukan Jawa) dan fallback yang jelas.\n3) Pengaturan dasar per pengguna: gaya English (formal/informal), panjang output (ringkas/normal), dan opsi mempertahankan istilah asli.\n\nKriteria sukses:\n1) Pengguna bisa menerjemahkan dengan satu langkah: kirim pesan, bot membalas terjemahan.\n2) Tingkat kegagalan rendah (error rate), dengan pesan error yang informatif.\n3) Bot tetap responsif saat beban meningkat, dengan kontrol antrian internal dan rate limiting.",
+          "highLevelArchitecture": "Gambaran tingkat tinggi (single process):\n1) Telegram layer (grammY): menerima update, routing command, middleware, dan handler pesan.\n2) Application layer: use-case seperti TranslateText, SetPreference, DetectLanguage, UsageAccounting.\n3) Translation provider adapter: antarmuka generik (translate(sourceText, options)) yang dapat diimplementasikan oleh berbagai penyedia (API atau engine internal). Tujuannya mengisolasi ketergantungan vendor/model.\n4) Persistence layer (MongoDB): menyimpan user profile, preferences, usage counters, dan event log ringkas.\n5) Observability: structured logging, error tracking (internal), metrik dasar (jumlah request, latensi, error, token/biaya jika relevan) disimpan di MongoDB atau log aggregator berbasis file.\n\nPrinsip desain:\n1) Idempotensi: setiap update diproses aman tanpa efek samping berulang (misalnya, mencegah double-translate akibat retry webhook/polling).\n2) Bounded work per update: batasi ukuran input, batasi waktu pemrosesan, dan batasi jumlah panggilan ke provider per pesan.\n3) Degradasi yang baik: jika provider down/timeout, bot memberi respons ramah dan menyarankan coba lagi.\n\nMode penerimaan update:\n1) Direkomendasikan webhook untuk produksi agar latensi dan efisiensi lebih baik.\n2) Long polling dapat menjadi fallback saat pengaturan webhook tidak memungkinkan.\n\nKinerja dan kontrol beban:\n1) Rate limiting per user dan global untuk mencegah spam dan menjaga biaya.\n2) Concurrency control internal: batasi jumlah terjemahan paralel (misalnya per proses) agar tidak menumpuk dan menurunkan respons.\n3) Timeout dan retry terkontrol untuk panggilan ke translation provider (retry hanya untuk error yang aman).",
+          "dataModel": "Koleksi: users\n1) userId (number, unique)\n2) createdAt, updatedAt\n3) locale (string, optional) untuk bahasa UI bot\n4) preferences:\n   1) englishStyle: formal | informal\n   2) outputLength: short | normal\n   3) keepJavaneseTerms: boolean\n   4) showNotes: boolean (catatan istilah/ungkapan)\n   5) defaultMode: auto | forcejvtoen\n5) limits:\n   1) dailyCount\n   2) dailyResetAt\n\nKoleksi: translations (opsional, untuk kualitas/UX)\n1) id\n2) userId\n3) chatId\n4) messageId\n5) sourceText (dipotong/di-hash jika ingin minim data sensitif)\n6) detectedSource: jv | id | en | unknown\n7) resultText\n8) providerMeta:\n   1) providerName\n   2) latencyMs\n   3) costUnits (jika ada)\n9) createdAt\n\nKoleksi: usageevents (opsional, untuk analytics dan debugging)\n1) id\n2) eventType: translaterequest | translatesuccess | translateerror | command\n3) userId, chatId\n4) timestamp\n5) payload ringan (misalnya panjang teks, kategori error, bukan isi penuh teks)\n\nKoleksi: idempotency (opsional, jika dibutuhkan)\n1) key: gabungan chatId:messageId atau updateid\n2) processedAt\n3) ttl index agar otomatis hilang\n\nCatatan privasi:\n1) Untuk produksi, default sebaiknya tidak menyimpan teks lengkap tanpa alasan kuat.\n2) Simpan hash atau potongan singkat untuk korelasi error, dan sediakan opsi /privacy untuk penjelasan serta /forget untuk menghapus data.",
+          "keyFlows": "Flow 1: Terjemahkan pesan teks (utama)\n1) User mengirim pesan teks ke bot (private chat) atau mention/reply di grup (jika diaktifkan).\n2) Middleware validasi:\n   1) Cek rate limit.\n   2) Cek ukuran teks (maks karakter) dan normalisasi whitespace.\n   3) Cek idempotensi (hindari proses ulang).\n3) Deteksi mode:\n   1) Jika user memakai /translate atau reply, paksa translate.\n   2) Jika mode auto, lakukan deteksi ringan (heuristik atau via provider) untuk menilai apakah teks kemungkinan Jawa.\n4) Panggil Translation provider adapter dengan opsi dari preferences.\n5) Format output:\n   1) Balas dengan hasil English.\n   2) Jika showNotes aktif dan tersedia, sertakan catatan singkat (misalnya istilah krama yang bermakna sopan).\n6) Simpan event ringkas ke MongoDB (opsional) dan update counter harian.\n\nFlow 2: Terjemahkan dengan reply\n1) User me-reply pesan orang lain dengan perintah /translate.\n2) Bot mengambil teks dari replied message.\n3) Lanjut seperti Flow 1.\n\nFlow 3: Pengaturan pengguna\n1) User membuka /settings.\n2) Bot menampilkan opsi (inline keyboard) untuk:\n   1) English formal/informal\n   2) Output ringkas/normal\n   3) Simpan istilah Jawa (on/off)\n   4) Catatan istilah (on/off)\n3) Pilihan disimpan di users.preferences.\n\nFlow 4: Batas harian dan anti-spam\n1) Setiap request menambah dailyCount.\n2) Jika melewati batas, bot menolak dengan pesan yang jelas dan waktu reset.\n3) Admin dapat menaikkan limit untuk user tertentu (opsional) atau menonaktifkan bot di chat tertentu.\n\nFlow 5: Error handling dan fallback\n1) Timeout ke provider: bot kirim pesan singkat bahwa layanan sedang sibuk, sarankan ulangi.\n2) Error validasi input: bot minta user memendekkan teks atau menghapus format aneh.\n3) Provider mengembalikan hasil kosong: bot minta user coba dengan kalimat lebih lengkap.\n\nFlow 6: Grup (opsional)\n1) Bot hanya merespons jika:\n   1) Pesan diawali trigger seperti \"jv:\" atau\n   2) Bot di-mention, atau\n   3) Pesan adalah reply ke bot\n2) Ini menghindari spam dan gangguan di grup.",
+          "techStack": "Runtime dan bahasa:\n1) Node.js (ESM) sebagai satu proses layanan.\n2) grammY sebagai framework Telegram bot.\n\nKonfigurasi dan secrets:\n1) TELEGRAMBOTTOKEN dari environment variables.\n2) Konfigurasi tambahan via environment variables: MongoDB connection string, mode webhook/polling, base URL webhook, batas harian, timeout provider.\n\nPersistensi:\n1) MongoDB untuk users, usage, dan log ringkas.\n2) In-memory maps untuk cache sementara (misalnya rate-limit window, concurrency semaphore) dengan asumsi bisa hilang saat restart.\n\nIntegrasi penerjemahan:\n1) Translation provider adapter (abstraksi) agar bisa memakai layanan terjemahan eksternal atau model internal.\n2) Kebijakan timeout, retry terbatas, dan circuit breaker sederhana di level aplikasi untuk menjaga stabilitas.\n\nPenyimpanan file (jika nanti ada fitur voice/image):\n1) Object storage atau simple filesystem storage untuk menyimpan artefak sementara (misalnya audio hasil STT), dengan pembersihan terjadwal.\n\nDeployment:\n1) Satu Node.js server di cloud.\n2) Ekspos endpoint webhook jika memakai webhook; jika polling, tidak perlu inbound.\n3) Health check endpoint internal (opsional) untuk monitoring.\n\nOperasional:\n1) Logging terstruktur ke stdout dan/atau file.\n2) Monitoring metrik aplikasi secara ringan (latensi, error rate) melalui log dan koleksi usageevents di MongoDB.",
+          "nonFunctional": "Keandalan:\n1) Timeout ketat untuk panggilan provider dan batas ukuran input.\n2) Idempotensi untuk mencegah duplikasi proses.\n3) Graceful degradation saat provider bermasalah.\n\nKeamanan:\n1) Validasi input dan sanitasi (hindari format yang memicu parsing berlebihan).\n2) Rate limiting per user dan per chat.\n3) Batasi fitur grup untuk mencegah penyalahgunaan.\n4) Minimalkan data sensitif yang disimpan; dukung penghapusan data.\n\nPrivasi dan kepatuhan:\n1) Jelaskan di /privacy data apa yang disimpan (misalnya preferensi, counter, log ringkas).\n2) Default tidak menyimpan isi teks lengkap atau simpan hanya untuk periode singkat dengan TTL.\n\nKinerja:\n1) Concurrency limit untuk request terjemahan.\n2) Cache hasil terjemahan jangka pendek (opsional) berdasarkan hash input + opsi untuk mengurangi biaya dan latensi.\n\nKualitas terjemahan:\n1) Normalisasi teks (spasi, tanda baca) sebelum diterjemahkan.\n2) Opsi mempertahankan istilah budaya yang sulit diterjemahkan.\n3) Mode formal/informal untuk output English.\n4) Mekanisme feedback pengguna untuk perbaikan (misalnya /feedback).\n\nMaintainability:\n1) Arsitektur berlapis dengan adapter provider.\n2) Konfigurasi berbasis environment variables.\n3) Logging dan event yang cukup untuk debugging tanpa menyimpan konten sensitif.\n\nTesting (konsep, tanpa implementasi kode):\n1) Unit test untuk parsing command, validasi input, dan formatting output.\n2) Integration test untuk adapter provider dengan mock.\n3) End-to-end test skenario Telegram (simulasi update) untuk command utama."
+        },
+        "balanceCentsRemaining": 12,
+        "billing": {
+          "ok": true,
+          "charged": 33,
+          "remaining": 12,
+          "chargedCents": 33,
+          "remainingCents": 12,
+          "currency": "USD",
+          "baseUsd": 0.16492,
+          "markupUsd": 0.16492,
+          "platformFeeUsd": 0,
+          "totalUsd": 0.32984
+        },
+        "title": "Telegram Bot: Penerjemah Bah"
+      }
+    }
+  },
+  "runStatus": {
+    "phase": "done",
+    "stage": "cold_start",
+    "runId": "37c6ef77-f473-4fd6-869f-16f94214bd35:mm7qlfg1:0baagx",
+    "lastUserMessage": "buatkan bot translate bahasa jawa ke bahasa inggris",
+    "startedAt": "2026-03-01T12:39:14.561Z",
+    "updatedAt": "2026-03-01T12:40:55.261Z",
+    "message": "GitHub auto-push skipped (no repo linked or GitHub not connected in session).",
+    "commands": [
+      {
+        "name": "detect",
+        "file": "src/commands/detect.js"
+      },
+      {
+        "name": "formal",
+        "file": "src/commands/formal.js"
+      },
+      {
+        "name": "help",
+        "file": "src/commands/help.js"
+      },
+      {
+        "name": "mode",
+        "file": "src/commands/mode.js"
+      },
+      {
+        "name": "start",
+        "file": "src/commands/start.js"
+      },
+      {
+        "name": "translate",
+        "file": "src/commands/translate.js"
+      }
+    ],
+    "ok": true,
+    "state": {
+      "projectId": "37c6ef77-f473-4fd6-869f-16f94214bd35",
+      "fileStructure": {
+        ".env.sample": {
+          "type": "file",
+          "content": "# Telegram\nTELEGRAM_BOT_TOKEN=\n\n# CookMyBots AI Gateway\n# COOKMYBOTS_AI_ENDPOINT is a BASE URL (do NOT include /chat)\n# Example: https://api.cookmybots.com/api/ai\nCOOKMYBOTS_AI_ENDPOINT=\nCOOKMYBOTS_AI_KEY=\n\n# Optional controls\nAI_TIMEOUT_MS=600000\nAI_DEBUG=0\nAI_MODEL=\n"
+        },
+        "CHANGELOG.md": {
+          "type": "file",
+          "content": "# Changelog\n\nAll notable changes to this bot project are recorded here.\n\n## 2026-03-01 12:40:55. UTC\n- Request: buatkan bot translate bahasa jawa ke bahasa inggris\n- Summary: Project Telegram grammY untuk terjemahan Jawa→Inggris sudah dibuat sesuai spec: mode auto/manual, /translate (arg atau reply), /formal, /detect (heuristik), validasi input + batas panjang, helper AI Gateway yang selalu …\n- Files: .env.sample, DOCS.md, package.json, project.json, src/bot.js, src/commands/detect.js, src/commands/formal.js, src/commands/help.js, src/commands/loader.js, src/commands/mode.js, src/commands/start.js, src/commands/translate.js, src/features/agent.js, src/inde…\n\n"
+        },
+        "DOCS.md": {
+          "type": "file",
+          "content": "Bot ini menerjemahkan Bahasa Jawa ke Bahasa Inggris di Telegram.\n\nSetup\n1) Install dependencies: npm run install:root\n2) Copy .env.sample menjadi .env lalu isi variabelnya\n3) Jalankan: npm run dev\n\nEnvironment variables\n1) TELEGRAM_BOT_TOKEN (wajib)\nToken bot Telegram dari BotFather.\n2) COOKMYBOTS_AI_ENDPOINT (wajib untuk terjemahan)\nBase URL CookMyBots AI Gateway. Contoh: https://api.cookmybots.com/api/ai\n3) COOKMYBOTS_AI_KEY (wajib untuk terjemahan)\nAPI key untuk CookMyBots AI Gateway.\n4) AI_TIMEOUT_MS (opsional)\nDefault 600000.\n5) AI_MODEL (opsional)\nJika ingin memilih model tertentu lewat gateway.\n\nPerintah\n1) /start\nMenampilkan sambutan singkat dan status setting kamu (mode dan formalitas).\nContoh:\n/start\n\n2) /help\nPanduan lengkap cara pakai dan contoh.\n\n3) /translate\nTerjemahkan teks.\nCara:\n/translate Aku arep lunga saiki\nAtau reply sebuah pesan lalu kirim:\n/translate\n\n4) /mode auto|manual\nMengatur apakah pesan teks biasa diterjemahkan otomatis.\nContoh:\n/mode manual\n\n5) /formal neutral|formal|casual\nMengatur gaya Bahasa Inggris.\nContoh:\n/formal casual\n\n6) /detect\nDeteksi heuristik apakah teks kemungkinan Bahasa Jawa.\nCara:\n/detect Aku ora ngerti\nAtau reply pesan lalu:\n/detect\n\nCatatan\n1) Preferensi user disimpan di memori runtime (in-memory). Kalau bot restart, kembali ke default.\n2) Bot hanya memproses pesan teks. Media seperti foto atau voice akan diminta dikirim sebagai teks.\n"
+        },
+        "package.json": {
+          "type": "file",
+          "content": "{\n  \"name\": \"cookmybots-telegram-bot\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"engines\": {\n    \"node\": \">=18\"\n  },\n  \"scripts\": {\n    \"install:root\": \"bash -lc \\\"set -e; if [ -f package-lock.json ]; then npm ci; else npm install; fi\\\"\",\n    \"build\": \"npm run install:root && echo build\",\n    \"start\": \"node src/index.js\",\n    \"dev\": \"node --watch src/index.js\"\n  },\n  \"dependencies\": {\n    \"dotenv\": \"^16.4.5\",\n    \"grammy\": \"^1.20.0\",\n    \"mongodb\": \"^6.10.0\",\n    \"@grammyjs/runner\": \"^2.0.3\"\n  },\n  \"devDependencies\": {}\n}\n"
+        },
+        "src": {
+          "type": "dir",
+          "children": {
+            "bot.js": {
+              "type": "file",
+              "content": "import { Bot } from \"grammy\";\nimport { registerCommands } from \"./commands/loader.js\";\nimport { registerAgent } from \"./features/agent.js\";\n\nexport function createBot(token) {\n  const bot = new Bot(token);\n\n  // Commands first (middleware order matters)\n  registerCommands(bot);\n\n  // AI/auto-translate catch-all after commands\n  registerAgent(bot);\n\n  // Friendly handler for non-text messages\n  bot.on(\"message\", async (ctx, next) => {\n    const hasText = typeof ctx.message?.text === \"string\";\n    if (hasText) return next();\n\n    // Ignore service messages etc. but be friendly for common media\n    const m = ctx.message || {};\n    const looksLikeUserMedia =\n      !!m.sticker || !!m.photo || !!m.voice || !!m.video || !!m.document || !!m.audio;\n\n    if (looksLikeUserMedia) {\n      try {\n        await ctx.reply(\"Aku belum bisa memproses media. Tolong kirim teks Bahasa Jawa ya.\");\n      } catch {\n        // ignore\n      }\n    }\n\n    return next();\n  });\n\n  bot.catch((err) => {\n    const e = err?.error || err;\n    console.error(\n      JSON.stringify({\n        level: \"error\",\n        msg: \"bot.catch\",\n        updateId: err?.ctx?.update?.update_id,\n        err:\n          e?.response?.data?.error?.message ||\n          e?.response?.data?.message ||\n          e?.message ||\n          String(e),\n      })\n    );\n  });\n\n  return bot;\n}\n"
+            },
+            "commands": {
+              "type": "dir",
+              "children": {
+                "detect.js": {
+                  "type": "file",
+                  "content": "import { isLikelyJavanese } from \"../lib/jawaDetect.js\";\n\nfunction getArgText(ctx) {\n  const t = String(ctx.message?.text || \"\");\n  const parts = t.split(\" \");\n  parts.shift();\n  return parts.join(\" \").trim();\n}\n\nexport default function register(bot) {\n  bot.command(\"detect\", async (ctx) => {\n    const replyText = ctx.message?.reply_to_message?.text;\n    const argText = getArgText(ctx);\n\n    const text = (replyText && String(replyText).trim()) || argText;\n    if (!text) {\n      return ctx.reply(\"Pakai: /detect <teks> atau reply sebuah pesan lalu kirim /detect.\");\n    }\n\n    const ok = isLikelyJavanese(text);\n    if (ok) {\n      return ctx.reply(\"Kemungkinan Jawa: ya. Kalau mau diterjemahkan, pakai /translate atau kirim teks biasa (mode auto).\" );\n    }\n\n    return ctx.reply(\"Kemungkinan Jawa: tidak. Kalau kamu tetap mau coba, pakai /translate.\" );\n  });\n}\n"
+                },
+                "formal.js": {
+                  "type": "file",
+                  "content": "import { getPrefs, setFormal } from \"../lib/userPrefs.js\";\n\nfunction getArg(ctx) {\n  const t = String(ctx.message?.text || \"\").trim();\n  const parts = t.split(/\\s+/);\n  parts.shift();\n  return String(parts[0] || \"\").toLowerCase();\n}\n\nexport default function register(bot) {\n  bot.command(\"formal\", async (ctx) => {\n    const arg = getArg(ctx);\n    const userId = ctx.from?.id;\n\n    if (arg !== \"neutral\" && arg !== \"formal\" && arg !== \"casual\") {\n      const p = getPrefs(userId);\n      return ctx.reply(\n        `Pakai: /formal neutral|formal|casual. Status kamu sekarang: formalitas=${p.formal}.`\n      );\n    }\n\n    setFormal(userId, arg);\n    return ctx.reply(`Oke, formalitas diset ke ${arg}.`);\n  });\n}\n"
+                },
+                "help.js": {
+                  "type": "file",
+                  "content": "export default function register(bot) {\n  bot.command(\"help\", async (ctx) => {\n    const text = [\n      \"Fitur bot ini: menerjemahkan Bahasa Jawa ke Bahasa Inggris.\",\n      \"\", \n      \"Cara pakai:\",\n      \"1) Mode auto (default): kirim teks biasa (bukan command), bot akan menerjemahkan.\",\n      \"2) /translate <teks> untuk menerjemahkan teks tertentu.\",\n      \"3) Reply sebuah pesan lalu kirim /translate untuk menerjemahkan pesan yang direply.\",\n      \"4) /mode auto atau /mode manual untuk mengatur apakah pesan biasa diterjemahkan otomatis.\",\n      \"5) /formal neutral|formal|casual untuk mengatur gaya Bahasa Inggris.\",\n      \"6) /detect <teks> atau reply lalu /detect untuk cek kemungkinan teksnya Bahasa Jawa.\",\n      \"\", \n      \"Contoh:\",\n      \"User: /mode manual\",\n      \"Bot: Oke, mode manual aktif.\",\n      \"\", \n      \"User: /translate Kowe wis mangan durung?\",\n      \"Bot: Have you eaten yet?\",\n      \"\", \n      \"User: /formal formal\",\n      \"Bot: Oke, formalitas diset ke formal.\",\n      \"\", \n      \"User: /detect Aku ora ngerti\",\n      \"Bot: Kemungkinan Jawa: ya. Coba pakai /translate.\",\n    ].join(\"\\n\");\n\n    await ctx.reply(text);\n  });\n}\n"
+                },
+                "loader.js": {
+                  "type": "file",
+                  "content": "import fs from \"node:fs\";\nimport path from \"node:path\";\nimport { fileURLToPath, pathToFileURL } from \"node:url\";\n\nexport async function registerCommands(bot) {\n  const dir = path.dirname(fileURLToPath(import.meta.url));\n\n  const commandFiles = fs\n    .readdirSync(dir)\n    .filter(\n      (file) =>\n        file.endsWith(\".js\") &&\n        file !== \"loader.js\" &&\n        !file.startsWith(\"_\")\n    );\n\n  for (const file of commandFiles) {\n    const url = pathToFileURL(path.join(dir, file)).href;\n    const mod = await import(url);\n\n    const handler =\n      (mod && (mod.default || mod.register)) ||\n      (typeof mod === \"function\" ? mod : null);\n\n    if (typeof handler === \"function\") {\n      await handler(bot);\n    } else {\n      console.warn(\"[commands] \" + file + \" has no usable export; skipped.\");\n    }\n  }\n}\n"
+                },
+                "mode.js": {
+                  "type": "file",
+                  "content": "import { getPrefs, setMode } from \"../lib/userPrefs.js\";\n\nfunction getArg(ctx) {\n  const t = String(ctx.message?.text || \"\").trim();\n  const parts = t.split(/\\s+/);\n  parts.shift();\n  return String(parts[0] || \"\").toLowerCase();\n}\n\nexport default function register(bot) {\n  bot.command(\"mode\", async (ctx) => {\n    const arg = getArg(ctx);\n    const userId = ctx.from?.id;\n\n    if (arg !== \"auto\" && arg !== \"manual\") {\n      const p = getPrefs(userId);\n      return ctx.reply(\n        `Pakai: /mode auto atau /mode manual. Status kamu sekarang: mode=${p.mode}.`\n      );\n    }\n\n    setMode(userId, arg);\n    return ctx.reply(`Oke, mode diset ke ${arg}.`);\n  });\n}\n"
+                },
+                "start.js": {
+                  "type": "file",
+                  "content": "import { getPrefs } from \"../lib/userPrefs.js\";\n\nexport default function register(bot) {\n  bot.command(\"start\", async (ctx) => {\n    const userId = ctx.from?.id;\n    const p = getPrefs(userId);\n\n    const lines = [\n      \"Halo. Aku bot penerjemah Bahasa Jawa ke Bahasa Inggris.\",\n      \"\", \n      \"Cara pakai: kirim teks Bahasa Jawa, nanti aku balas terjemahan Inggrisnya.\",\n      \"Contoh:\",\n      \"User: Aku arep lunga saiki\",\n      \"Bot: I want to leave now.\",\n      \"\", \n      `Status kamu sekarang: mode=${p.mode}, formalitas=${p.formal}.`,\n      \"\", \n      \"Ketik /help untuk panduan lengkap.\",\n    ];\n\n    await ctx.reply(lines.join(\"\\n\"));\n  });\n}\n"
+                },
+                "translate.js": {
+                  "type": "file",
+                  "content": "import { cfg } from \"../lib/config.js\";\nimport { getPrefs } from \"../lib/userPrefs.js\";\nimport { translateJvToEn } from \"../services/translator.js\";\n\nfunction getArgText(ctx) {\n  const t = String(ctx.message?.text || \"\");\n  const parts = t.split(\" \");\n  parts.shift();\n  return parts.join(\" \").trim();\n}\n\nexport default function register(bot) {\n  bot.command(\"translate\", async (ctx) => {\n    const replyText = ctx.message?.reply_to_message?.text;\n    const argText = getArgText(ctx);\n\n    const text = (replyText && String(replyText).trim()) || argText;\n\n    if (!text) {\n      return ctx.reply(\n        \"Pakai: /translate <teks> atau reply sebuah pesan lalu kirim /translate.\"\n      );\n    }\n\n    const p = getPrefs(ctx.from?.id);\n\n    const res = await translateJvToEn(cfg, { text, formal: p.formal });\n    if (!res.ok) return ctx.reply(res.error);\n\n    return ctx.reply(res.translation);\n  });\n}\n"
+                }
+              }
+            },
+            "features": {
+              "type": "dir",
+              "children": {
+                "agent.js": {
+                  "type": "file",
+                  "content": "import { cfg } from \"../lib/config.js\";\nimport { log, safeErr } from \"../lib/log.js\";\nimport { getPrefs } from \"../lib/userPrefs.js\";\nimport { translateJvToEn } from \"../services/translator.js\";\n\nconst perChat = new Map();\nlet globalInflight = 0;\nconst GLOBAL_CAP = 1;\n\nfunction lockKey(ctx) {\n  const chatId = ctx.chat?.id;\n  return String(chatId || ctx.from?.id || \"unknown\");\n}\n\nexport function registerAgent(bot) {\n  bot.on(\"message:text\", async (ctx, next) => {\n    const raw = String(ctx.message?.text || \"\");\n    if (raw.startsWith(\"/\")) return next();\n\n    const userId = ctx.from?.id;\n    const p = getPrefs(userId);\n    if (p.mode !== \"auto\") return next();\n\n    const key = lockKey(ctx);\n    if (perChat.get(key)) {\n      return ctx.reply(\"Aku masih ngerjain permintaanmu yang sebelumnya. Tunggu sebentar ya.\");\n    }\n    if (globalInflight >= GLOBAL_CAP) {\n      return ctx.reply(\"Lagi ramai. Coba lagi sebentar ya.\");\n    }\n\n    perChat.set(key, true);\n    globalInflight += 1;\n\n    const started = Date.now();\n    try {\n      const text = String(raw || \"\").trim();\n      if (!text) return next();\n\n      const res = await translateJvToEn(cfg, { text, formal: p.formal });\n      if (!res.ok) return ctx.reply(res.error);\n\n      try {\n        await ctx.reply(res.translation);\n      } catch (e) {\n        log.warn(\"telegram send fail\", { err: safeErr(e) });\n        // Fallback: send plain text anyway (no markdown used, so should be safe)\n        try {\n          await ctx.reply(String(res.translation || \"\"));\n        } catch (e2) {\n          log.error(\"telegram send fail (fallback)\", { err: safeErr(e2) });\n        }\n      }\n    } catch (e) {\n      log.error(\"agent translate error\", { err: safeErr(e), ms: Date.now() - started });\n      await ctx.reply(\"Maaf, ada error saat memproses pesan. Coba lagi ya.\");\n    } finally {\n      perChat.delete(key);\n      globalInflight = Math.max(0, globalInflight - 1);\n      const ms = Date.now() - started;\n      if (ms > 0) log.info(\"agent cycle\", { ms });\n    }\n  });\n}\n"
+                }
+              }
+            },
+            "index.js": {
+              "type": "file",
+              "content": "import \"dotenv/config\";\n\nimport { run } from \"@grammyjs/runner\";\nimport { cfg } from \"./lib/config.js\";\nimport { log, safeErr } from \"./lib/log.js\";\nimport { createBot } from \"./bot.js\";\n\nprocess.on(\"unhandledRejection\", (r) => {\n  console.error(\"UnhandledRejection:\", r);\n  process.exit(1);\n});\nprocess.on(\"uncaughtException\", (e) => {\n  console.error(\"UncaughtException:\", e);\n  process.exit(1);\n});\n\nlet runner = null;\nlet restarting = false;\n\nfunction sleep(ms) {\n  return new Promise((r) => setTimeout(r, ms));\n}\n\nasync function startPollingWithRetry(bot) {\n  if (restarting) return;\n  restarting = true;\n\n  let backoff = 2000;\n  while (true) {\n    try {\n      log.info(\"polling start\");\n\n      try {\n        await bot.api.deleteWebhook({ drop_pending_updates: true });\n      } catch (e) {\n        log.warn(\"deleteWebhook failed\", { err: safeErr(e) });\n      }\n\n      runner = run(bot, { concurrency: 1 });\n      log.info(\"polling running\", { concurrency: 1 });\n      restarting = false;\n      return;\n    } catch (e) {\n      const msg = safeErr(e);\n\n      // 409 happens on deploy overlap. Backoff and retry.\n      log.warn(\"polling failed\", { err: msg, backoffMs: backoff });\n      await sleep(backoff);\n      backoff = Math.min(20000, Math.round(backoff * 1.7));\n\n      try {\n        if (runner) {\n          runner.abort();\n          runner = null;\n        }\n      } catch {}\n    }\n  }\n}\n\nasync function boot() {\n  log.info(\"boot\", {\n    TELEGRAM_BOT_TOKEN_set: !!cfg.TELEGRAM_BOT_TOKEN,\n    COOKMYBOTS_AI_ENDPOINT_set: !!cfg.COOKMYBOTS_AI_ENDPOINT,\n    COOKMYBOTS_AI_KEY_set: !!cfg.COOKMYBOTS_AI_KEY,\n  });\n\n  if (!cfg.TELEGRAM_BOT_TOKEN) {\n    console.error(\n      \"TELEGRAM_BOT_TOKEN is required. Set it in your environment and redeploy.\"\n    );\n    process.exit(1);\n  }\n\n  if (!cfg.COOKMYBOTS_AI_ENDPOINT || !cfg.COOKMYBOTS_AI_KEY) {\n    log.warn(\"AI gateway not fully configured; translation will fail until set\", {\n      COOKMYBOTS_AI_ENDPOINT_set: !!cfg.COOKMYBOTS_AI_ENDPOINT,\n      COOKMYBOTS_AI_KEY_set: !!cfg.COOKMYBOTS_AI_KEY,\n    });\n  }\n\n  const bot = createBot(cfg.TELEGRAM_BOT_TOKEN);\n\n  try {\n    await bot.init();\n  } catch (e) {\n    log.warn(\"bot.init failed\", { err: safeErr(e) });\n  }\n\n  try {\n    await bot.api.setMyCommands([\n      { command: \"start\", description: \"Mulai dan lihat status\" },\n      { command: \"help\", description: \"Panduan pemakaian\" },\n      { command: \"translate\", description: \"Terjemahkan teks / reply\" },\n      { command: \"mode\", description: \"Ubah mode auto/manual\" },\n      { command: \"formal\", description: \"Ubah gaya: neutral/formal/casual\" },\n      { command: \"detect\", description: \"Deteksi kemungkinan Bahasa Jawa\" },\n    ]);\n  } catch (e) {\n    log.warn(\"setMyCommands failed\", { err: safeErr(e) });\n  }\n\n  // Memory log (lightweight)\n  setInterval(() => {\n    const m = process.memoryUsage();\n    console.log(\n      \"[mem]\",\n      JSON.stringify({\n        rssMB: Math.round(m.rss / 1e6),\n        heapUsedMB: Math.round(m.heapUsed / 1e6),\n      })\n    );\n  }, 60000).unref();\n\n  await startPollingWithRetry(bot);\n}\n\nboot();\n"
+            },
+            "lib": {
+              "type": "dir",
+              "children": {
+                "ai.js": {
+                  "type": "file",
+                  "content": "import { log, safeErr } from \"./log.js\";\n\nfunction trimSlash(u) {\n  u = String(u || \"\");\n  while (u.endsWith(\"/\")) u = u.slice(0, -1);\n  return u;\n}\n\nfunction withTimeout(ms) {\n  const ctrl = new AbortController();\n  const t = setTimeout(() => ctrl.abort(), ms);\n  return { ctrl, clear: () => clearTimeout(t) };\n}\n\nfunction pickTimeout(cfg) {\n  const v = Number(cfg?.AI_TIMEOUT_MS || 600000);\n  return Number.isFinite(v) && v > 0 ? v : 600000;\n}\n\nfunction pickModel(cfg, override) {\n  const m = String(override || cfg?.AI_MODEL || \"\").trim();\n  return m || undefined;\n}\n\nasync function safeReadJson(res) {\n  const text = await res.text();\n  try {\n    return { text, json: JSON.parse(text) };\n  } catch {\n    return { text, json: null };\n  }\n}\n\nexport async function aiChat(cfg, { messages, model, meta } = {}) {\n  const base = trimSlash(cfg?.COOKMYBOTS_AI_ENDPOINT || \"\");\n  const key = String(cfg?.COOKMYBOTS_AI_KEY || \"\");\n\n  if (!base || !key) {\n    return {\n      ok: false,\n      status: 412,\n      output: null,\n      error: \"AI_NOT_CONFIGURED (missing COOKMYBOTS_AI_ENDPOINT/COOKMYBOTS_AI_KEY)\",\n    };\n  }\n\n  const timeoutMs = pickTimeout(cfg);\n  const url = base + \"/chat\";\n\n  const started = Date.now();\n  const charCount = Array.isArray(messages)\n    ? messages.reduce((n, m) => n + String(m?.content || \"\").length, 0)\n    : 0;\n\n  log.info(\"ai.chat start\", {\n    feature: \"translate\",\n    timeoutMs,\n    modelSet: !!pickModel(cfg, model),\n    messagesCount: Array.isArray(messages) ? messages.length : 0,\n    charCount,\n  });\n\n  const { ctrl, clear } = withTimeout(timeoutMs);\n  try {\n    const res = await fetch(url, {\n      method: \"POST\",\n      headers: {\n        Authorization: \"Bearer \" + key,\n        \"Content-Type\": \"application/json\",\n      },\n      body: JSON.stringify({\n        messages: Array.isArray(messages) ? messages : [],\n        model: pickModel(cfg, model),\n        meta: meta || undefined,\n      }),\n      signal: ctrl.signal,\n    });\n\n    const { json } = await safeReadJson(res);\n\n    if (!res.ok) {\n      const msg =\n        json?.error ||\n        json?.message ||\n        \"AI_ERROR\";\n\n      log.warn(\"ai.chat fail\", {\n        feature: \"translate\",\n        status: res.status,\n        ms: Date.now() - started,\n        err: String(msg).slice(0, 400),\n      });\n\n      return { ok: false, status: res.status, output: null, error: String(msg) };\n    }\n\n    const out = json?.output || null;\n    const content = out?.type === \"chat\" ? String(out?.content || \"\") : \"\";\n\n    log.info(\"ai.chat success\", {\n      feature: \"translate\",\n      status: res.status,\n      ms: Date.now() - started,\n      outType: out?.type || \"\",\n      outChars: content.length,\n    });\n\n    return { ok: true, status: res.status, output: out, error: null };\n  } catch (e) {\n    const msg = safeErr(e);\n    log.warn(\"ai.chat exception\", {\n      feature: \"translate\",\n      ms: Date.now() - started,\n      err: String(msg).slice(0, 400),\n    });\n    return { ok: false, status: e?.name === \"AbortError\" ? 408 : 0, output: null, error: msg };\n  } finally {\n    clear();\n  }\n}\n"
+                },
+                "botProfile.js": {
+                  "type": "file",
+                  "content": "export function buildBotProfile() {\n  return [\n    \"Bot Profile:\",\n    \"Tujuan: menerjemahkan Bahasa Jawa (ngoko/krama campur) ke Bahasa Inggris.\",\n    \"Perintah publik: /start, /help, /translate, /mode, /formal, /detect.\",\n    \"Aturan:\",\n    \"- Mode auto: setiap pesan teks biasa (bukan command) diterjemahkan otomatis.\",\n    \"- Mode manual: pesan teks biasa tidak diterjemahkan; hanya via /translate.\",\n    \"- Formalitas output English mengikuti setting user: neutral/formal/casual.\",\n    \"- Batas input: teks panjang akan diminta dipecah.\",\n    \"- Privasi: bot tidak menyimpan data permanen; preferensi disimpan di memori runtime dan hilang saat bot restart.\",\n    \"- Jika user meminta penjelasan, boleh memberi penjelasan. Selain itu, hasilkan hanya terjemahannya.\",\n  ].join(\"\\n\");\n}\n"
+                },
+                "config.js": {
+                  "type": "file",
+                  "content": "export const cfg = {\n  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,\n\n  // CookMyBots AI Gateway (required for translation features)\n  // Base URL only, example: https://api.cookmybots.com/api/ai\n  COOKMYBOTS_AI_ENDPOINT: process.env.COOKMYBOTS_AI_ENDPOINT || \"\",\n  COOKMYBOTS_AI_KEY: process.env.COOKMYBOTS_AI_KEY || \"\",\n\n  AI_MODEL: process.env.AI_MODEL || \"\",\n  AI_DEBUG: String(process.env.AI_DEBUG || \"0\") === \"1\",\n\n  // 10 minutes default (media/slow calls). Can be overridden.\n  AI_TIMEOUT_MS: Number(process.env.AI_TIMEOUT_MS || 600000),\n};\n"
+                },
+                "db.js": {
+                  "type": "file",
+                  "content": "\n      import { MongoClient } from \"mongodb\";\n\nlet _client = null;\nlet _db = null;\n\nexport async function getDb(mongoUri) {\n  if (!mongoUri) return null;\n  if (_db) return _db;\n\n  _client = new MongoClient(mongoUri, { maxPoolSize: 5 });\n  await _client.connect();\n  _db = _client.db(); // default DB from URI\n  return _db;\n}"
+                },
+                "jawaDetect.js": {
+                  "type": "file",
+                  "content": "const COMMON = [\n  \"aku\",\n  \"kowe\",\n  \"koe\",\n  \"sampeyan\",\n  \"panjenengan\",\n  \"ora\",\n  \"ndak\",\n  \"gak\",\n  \"nggih\",\n  \"iya\",\n  \"piye\",\n  \"piye kabare\",\n  \"wes\",\n  \"wis\",\n  \"arep\",\n  \"arepe\",\n  \"mangan\",\n  \"turu\",\n  \"lungo\",\n  \"bali\",\n  \"kapan\",\n  \"ngendi\",\n  \"opo\",\n  \"apa\",\n  \"monggo\",\n  \"mboten\",\n  \"nopo\",\n  \"kulo\",\n  \"samangke\",\n];\n\nexport function isLikelyJavanese(text) {\n  const t = String(text || \"\")\n    .toLowerCase()\n    .replace(/[^a-z\\s']/g, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n  if (!t) return false;\n\n  const words = new Set(t.split(\" \").filter(Boolean));\n\n  let hits = 0;\n  for (const w of COMMON) {\n    const key = w.includes(\" \") ? null : w;\n    if (key && words.has(key)) hits += 1;\n    if (!key && t.includes(w)) hits += 1;\n  }\n\n  // Very rough heuristic: 2+ common tokens suggests Javanese.\n  return hits >= 2;\n}\n"
+                },
+                "log.js": {
+                  "type": "file",
+                  "content": "export function safeErr(err) {\n  return (\n    err?.response?.data?.error?.message ||\n    err?.response?.data?.message ||\n    err?.message ||\n    String(err)\n  );\n}\n\nfunction toMeta(meta) {\n  if (!meta || typeof meta !== \"object\") return {};\n  try {\n    return JSON.parse(JSON.stringify(meta));\n  } catch {\n    return { meta: \"[unserializable]\" };\n  }\n}\n\nexport const log = {\n  info(msg, meta) {\n    console.log(JSON.stringify({ level: \"info\", msg, ...toMeta(meta) }));\n  },\n  warn(msg, meta) {\n    console.warn(JSON.stringify({ level: \"warn\", msg, ...toMeta(meta) }));\n  },\n  error(msg, meta) {\n    console.error(JSON.stringify({ level: \"error\", msg, ...toMeta(meta) }));\n  },\n};\n"
+                },
+                "memory.js": {
+                  "type": "file",
+                  "content": "\n      import { getDb } from \"./db.js\";\n\nconst COL = \"memory_messages\";\n\nexport async function addTurn({ mongoUri, platform, userId, chatId, role, text }) {\n  const db = await getDb(mongoUri);\n  const doc = {\n    platform,\n    userId: String(userId),\n    chatId: chatId ? String(chatId) : \"\",\n    role,\n    text: String(text || \"\").slice(0, 4000),\n    ts: new Date(),\n  };\n\n  if (!db) return; // allow bot to run without DB\n  await db.collection(COL).insertOne(doc);\n}\n\nexport async function getRecentTurns({ mongoUri, platform, userId, chatId, limit = 14 }) {\n  const db = await getDb(mongoUri);\n  if (!db) return [];\n\n  const q = {\n    platform,\n    userId: String(userId),\n  };\n  if (chatId) q.chatId = String(chatId);\n\n  const rows = await db\n    .collection(COL)\n    .find(q)\n    .sort({ ts: -1 })\n    .limit(limit)\n    .toArray();\n\n  // return chronological\n  return rows.reverse().map((r) => ({ role: r.role, text: r.text }));\n}\n\nexport async function clearUserMemory({ mongoUri, platform, userId, chatId }) {\n  const db = await getDb(mongoUri);\n  if (!db) return;\n\n  const q = { platform, userId: String(userId) };\n  if (chatId) q.chatId = String(chatId);\n\n  await db.collection(COL).deleteMany(q);\n}"
+                },
+                "userPrefs.js": {
+                  "type": "file",
+                  "content": "const store = new Map();\n\nexport const DEFAULT_PREFS = Object.freeze({\n  mode: \"auto\", // auto | manual\n  formal: \"neutral\", // neutral | formal | casual\n});\n\nexport function getPrefs(userId) {\n  const id = String(userId || \"\");\n  const v = store.get(id);\n  if (v && typeof v === \"object\") return v;\n  const fresh = { ...DEFAULT_PREFS };\n  store.set(id, fresh);\n  return fresh;\n}\n\nexport function setMode(userId, mode) {\n  const p = getPrefs(userId);\n  p.mode = mode;\n}\n\nexport function setFormal(userId, formal) {\n  const p = getPrefs(userId);\n  p.formal = formal;\n}\n"
+                }
+              }
+            },
+            "services": {
+              "type": "dir",
+              "children": {
+                "translator.js": {
+                  "type": "file",
+                  "content": "import { aiChat } from \"../lib/ai.js\";\nimport { buildBotProfile } from \"../lib/botProfile.js\";\n\nfunction clampText(text, maxChars) {\n  const t = String(text || \"\");\n  if (t.length <= maxChars) return { ok: true, text: t };\n  return { ok: false, text: t.slice(0, maxChars) };\n}\n\nexport async function translateJvToEn(cfg, { text, formal = \"neutral\" } = {}) {\n  const MAX_CHARS = 2500;\n  const clamped = clampText(text, MAX_CHARS);\n  if (!clamped.ok) {\n    return {\n      ok: false,\n      error: `Teksnya kepanjangan (maks ${MAX_CHARS} karakter). Tolong pecah jadi beberapa pesan.`,\n      translation: \"\",\n    };\n  }\n\n  const styleLine =\n    formal === \"formal\"\n      ? \"Use a more formal, polite, professional English style.\"\n      : formal === \"casual\"\n        ? \"Use a casual, relaxed English style.\"\n        : \"Use a neutral standard English style.\";\n\n  const system = [\n    buildBotProfile(),\n    \"\", \n    \"You are a translation engine.\",\n    \"Task: Translate from Javanese (can be ngoko/krama mix) to English.\",\n    \"Preserve meaning, context, and tone.\",\n    styleLine,\n    \"Output rules:\",\n    \"- Output ONLY the English translation.\",\n    \"- Keep line breaks if the input has multiple lines.\",\n    \"- Do not add explanations unless the user explicitly asks for an explanation.\",\n  ].join(\"\\n\");\n\n  const res = await aiChat(cfg, {\n    messages: [\n      { role: \"system\", content: system },\n      { role: \"user\", content: String(clamped.text || \"\") },\n    ],\n    meta: { platform: \"telegram\", feature: \"jv_to_en\" },\n  });\n\n  const content = res?.output?.type === \"chat\" ? String(res.output.content || \"\") : \"\";\n\n  if (!res?.ok || !content.trim()) {\n    return {\n      ok: false,\n      error:\n        res?.status === 412\n          ? \"Fitur AI belum dikonfigurasi. Minta admin set COOKMYBOTS_AI_ENDPOINT dan COOKMYBOTS_AI_KEY.\"\n          : \"Maaf, lagi ada masalah saat menerjemahkan. Coba lagi sebentar ya.\",\n      translation: \"\",\n    };\n  }\n\n  return { ok: true, translation: content, error: null };\n}\n"
+                }
+              }
+            }
+          }
+        }
+      },
+      "commands": [
+        {
+          "command": "/detect",
+          "description": "Deteksi heuristik ringan apakah teks kemungkinan Bahasa Jawa.",
+          "usage": "/detect <teks> atau reply pesan lalu kirim /detect",
+          "examples": [
+            "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate."
+          ],
+          "example": "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate.",
+          "notes": "Heuristik ringan, tidak selalu akurat."
+        },
+        {
+          "command": "/formal",
+          "description": "Mengatur gaya bahasa Inggris: neutral, formal, atau casual.",
+          "usage": "/formal neutral|formal|casual",
+          "examples": [
+            "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+            "User: /formal casual → Bot: Oke, formalitas diset ke casual."
+          ],
+          "example": "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+          "notes": "Default adalah neutral."
+        },
+        {
+          "command": "/help",
+          "description": "Panduan lengkap semua fitur dan contoh pemakaian.",
+          "usage": "/help",
+          "examples": [
+            "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect"
+          ],
+          "example": "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect",
+          "notes": "Hanya menjelaskan perintah yang benar-benar tersedia."
+        },
+        {
+          "command": "/mode",
+          "description": "Mengatur mode auto atau manual.",
+          "usage": "/mode auto atau /mode manual",
+          "examples": [
+            "User: /mode auto → Bot: Oke, mode diset ke auto.",
+            "User: /mode manual → Bot: Oke, mode diset ke manual."
+          ],
+          "example": "User: /mode auto → Bot: Oke, mode diset ke auto.",
+          "notes": "Mode auto menerjemahkan semua pesan teks biasa (non-command)."
+        },
+        {
+          "command": "/start",
+          "description": "Sambutan singkat + cara pakai + status setting kamu (mode dan formalitas).",
+          "usage": "/start",
+          "examples": [
+            "User: /start → Bot: menjelaskan cara pakai dan status mode/formal"
+          ],
+          "example": "User: /start → Bot: menjelaskan cara pakai dan status mode/formal",
+          "notes": "Preferensi disimpan di memori runtime dan akan reset kalau bot restart."
+        },
+        {
+          "command": "/translate",
+          "description": "Menerjemahkan teks Jawa ke Inggris dari argumen atau dari pesan yang direply.",
+          "usage": "/translate <teks> atau reply pesan lalu kirim /translate",
+          "examples": [
+            "User: /translate Kowe piye kabare? → Bot: How are you?",
+            "User: (reply pesan) /translate → Bot: (terjemahan dari pesan reply)"
+          ],
+          "example": "User: /translate Kowe piye kabare? → Bot: How are you?",
+          "notes": "Jika tidak ada teks, bot akan memberi instruksi penggunaan."
+        }
+      ],
+      "envVarDocs": [
+        {
+          "key": "TELEGRAM_BOT_TOKEN",
+          "title": "Telegram Bot Token",
+          "description": "Token bot dari BotFather untuk menjalankan bot Telegram.",
+          "usage": "Dipakai saat startup untuk membuat instance grammY Bot.",
+          "howToGet": "Buat bot lewat BotFather, lalu copy tokennya.",
+          "example": "123456789:ABCDEF-your-token",
+          "isSecret": true,
+          "required": true
+        },
+        {
+          "key": "COOKMYBOTS_AI_ENDPOINT",
+          "title": "CookMyBots AI Endpoint",
+          "description": "Base URL untuk CookMyBots AI Gateway (jangan tambahkan /chat).",
+          "usage": "Bot akan memanggil {COOKMYBOTS_AI_ENDPOINT}/chat untuk terjemahan.",
+          "howToGet": "Dari konfigurasi CookMyBots AI Gateway project kamu.",
+          "example": "https://api.cookmybots.com/api/ai",
+          "isSecret": false,
+          "required": true
+        },
+        {
+          "key": "COOKMYBOTS_AI_KEY",
+          "title": "CookMyBots AI Key",
+          "description": "API key untuk otentikasi ke CookMyBots AI Gateway.",
+          "usage": "Dikirim sebagai header Authorization: Bearer <key> saat memanggil gateway.",
+          "howToGet": "Dari dashboard CookMyBots untuk project kamu.",
+          "example": "cmb_ai_... (format saja)",
+          "isSecret": true,
+          "required": true
+        },
+        {
+          "key": "AI_TIMEOUT_MS",
+          "title": "AI Timeout (ms)",
+          "description": "Batas waktu maksimal untuk request ke AI Gateway.",
+          "usage": "Dipakai oleh helper aiChat untuk AbortController timeout.",
+          "howToGet": "Opsional, set manual di env bila perlu.",
+          "example": "600000",
+          "isSecret": false,
+          "required": false
+        },
+        {
+          "key": "AI_MODEL",
+          "title": "AI Model",
+          "description": "Nama model opsional untuk diteruskan ke AI Gateway.",
+          "usage": "Jika kosong, gateway akan memakai default model.",
+          "howToGet": "Opsional, tergantung konfigurasi gateway kamu.",
+          "example": "gpt-4.1-mini (contoh saja)",
+          "isSecret": false,
+          "required": false
+        }
+      ],
+      "commandDocs": [
+        {
+          "command": "/start",
+          "description": "Sambutan singkat + cara pakai + status setting kamu (mode dan formalitas).",
+          "usage": "/start",
+          "examples": [
+            "User: /start → Bot: menjelaskan cara pakai dan status mode/formal"
+          ],
+          "notes": "Preferensi disimpan di memori runtime dan akan reset kalau bot restart."
+        },
+        {
+          "command": "/help",
+          "description": "Panduan lengkap semua fitur dan contoh pemakaian.",
+          "usage": "/help",
+          "examples": [
+            "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect"
+          ],
+          "notes": "Hanya menjelaskan perintah yang benar-benar tersedia."
+        },
+        {
+          "command": "/translate",
+          "description": "Menerjemahkan teks Jawa ke Inggris dari argumen atau dari pesan yang direply.",
+          "usage": "/translate <teks> atau reply pesan lalu kirim /translate",
+          "examples": [
+            "User: /translate Kowe piye kabare? → Bot: How are you?",
+            "User: (reply pesan) /translate → Bot: (terjemahan dari pesan reply)"
+          ],
+          "notes": "Jika tidak ada teks, bot akan memberi instruksi penggunaan."
+        },
+        {
+          "command": "/mode",
+          "description": "Mengatur mode auto atau manual.",
+          "usage": "/mode auto atau /mode manual",
+          "examples": [
+            "User: /mode auto → Bot: Oke, mode diset ke auto.",
+            "User: /mode manual → Bot: Oke, mode diset ke manual."
+          ],
+          "notes": "Mode auto menerjemahkan semua pesan teks biasa (non-command)."
+        },
+        {
+          "command": "/formal",
+          "description": "Mengatur gaya bahasa Inggris: neutral, formal, atau casual.",
+          "usage": "/formal neutral|formal|casual",
+          "examples": [
+            "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+            "User: /formal casual → Bot: Oke, formalitas diset ke casual."
+          ],
+          "notes": "Default adalah neutral."
+        },
+        {
+          "command": "/detect",
+          "description": "Deteksi heuristik ringan apakah teks kemungkinan Bahasa Jawa.",
+          "usage": "/detect <teks> atau reply pesan lalu kirim /detect",
+          "examples": [
+            "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate."
+          ],
+          "notes": "Heuristik ringan, tidak selalu akurat."
+        }
+      ],
+      "aiMessages": [
+        {
+          "role": "user",
+          "content": "buatkan bot translate bahasa jawa ke bahasa inggris"
+        },
+        {
+          "role": "assistant",
+          "content": "Project Telegram grammY untuk terjemahan Jawa→Inggris sudah dibuat sesuai spec: mode auto/manual, /translate (arg atau reply), /formal, /detect (heuristik), validasi input + batas panjang, helper AI Gateway yang selalu menyisipkan Bot Profile lewat system prompt, logger + safeErr, startup env sanity logs, dan polling long-running yang robust pakai @grammyjs/runner. Tidak ada database dan preferensi disimpan in-memory (reset saat restart). DOCS.md dan .env.sample juga sudah disiapkan.\n\nFiles touched (21): .env.sample, DOCS.md, package.json, project.json, src/bot.js, src/commands/detect.js…\nValidation: ✅ project passes syntax/basic checks after this edit."
+        }
+      ],
+      "createdBy": "",
+      "source": "",
+      "description": "",
+      "planMarkdown": "Bot: Telegram Bot: Penerjemah Bahasa Jawa ke Bahasa Inggris\n\nSummary:\nBot Telegram ini membantu pengguna menerjemahkan teks Bahasa Jawa (ngoko, krama, campuran) ke Bahasa Inggris dengan pengalaman chat yang sederhana dan cepat. Fokus utama adalah akurasi terjemahan yang konsisten, transparansi (memberi tahu batasan/ketidakpastian), serta keandalan operasional untuk penggunaan produksi.\n\nBot dirancang sebagai satu layanan Node.js (ESM) menggunakan grammY. Persistensi memakai MongoDB untuk menyimpan preferensi pengguna, riwayat singkat, statistik penggunaan, serta log error terstruktur. Integrasi model terjemahan dapat berupa API pihak ketiga atau model internal; arsitektur dibuat agar komponen penerjemah bisa diganti tanpa mengubah alur bot.\n\nProduct goals:\nTujuan utama produk:\n1) Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris dengan latensi rendah dan hasil yang mudah dibaca.\n2) Mendukung variasi bahasa Jawa (ngoko/krama) serta teks campuran Jawa-Indonesia.\n3) Menyediakan kontrol pengguna: mode formal/informal English, preferensi gaya, dan opsi untuk menampilkan romanisasi atau penjelasan istilah tertentu.\n4) Aman dan siap produksi: pembatasan laju, perlindungan dari spam, logging, dan pemantauan kesehatan.\n\nRuang lingkup MVP (minimum viable product):\n1) Terjemahkan pesan teks yang dikirim pengguna (atau reply ke pesan) dari Jawa ke Inggris.\n2) Deteksi bahasa ringan (untuk menghindari menerjemahkan teks yang jelas bukan Jawa) dan fallback yang jelas.\n3) Pengaturan dasar per pengguna: gaya English (formal/informal), panjang output (ringkas/normal), dan opsi mempertahankan istilah asli.\n\nKriteria sukses:\n1) Pengguna bisa menerjemahkan dengan satu langkah: kirim pesan, bot membalas terjemahan.\n2) Tingkat kegagalan rendah (error rate), dengan pesan error yang informatif.\n3) Bot tetap responsif saat beban meningkat, dengan kontrol antrian internal dan rate limiting.\n\nHigh-level architecture:\nGambaran tingkat tinggi (single process):\n1) Telegram layer (grammY): menerima update, routing command, middleware, dan handler pesan.\n2) Application layer: use-case seperti TranslateText, SetPreference, DetectLanguage, UsageAccounting.\n3) Translation provider adapter: antarmuka generik (translate(sourceText, options)) yang dapat diimplementasikan oleh berbagai penyedia (API atau engine internal). Tujuannya mengisolasi ketergantungan vendor/model.\n4) Persistence layer (MongoDB): menyimpan user profile, preferences, usage counters, dan event log ringkas.\n5) Observability: structured logging, error tracking (internal), metrik dasar (jumlah request, latensi, error, token/biaya jika relevan) disimpan di MongoDB atau log aggregator berbasis file.\n\nPrinsip desain:\n1) Idempotensi: setiap update diproses aman tanpa efek samping berulang (misalnya, mencegah double-translate akibat retry webhook/polling).\n2) Bounded work per update: batasi ukuran input, batasi waktu pemrosesan, dan batasi jumlah panggilan ke provider per pesan.\n3) Degradasi yang baik: jika provider down/timeout, bot memberi respons ramah dan menyarankan coba lagi.\n\nMode penerimaan update:\n1) Direkomendasikan webhook untuk produksi agar latensi dan efisiensi lebih baik.\n2) Long polling dapat menjadi fallback saat pengaturan webhook tidak memungkinkan.\n\nKinerja dan kontrol beban:\n1) Rate limiting per user dan global untuk mencegah spam dan menjaga biaya.\n2) Concurrency control internal: batasi jumlah terjemahan paralel (misalnya per proses) agar tidak menumpuk dan menurunkan respons.\n3) Timeout dan retry terkontrol untuk panggilan ke translation provider (retry hanya untuk error yang aman).\n\nData model:\nKoleksi: users\n1) userId (number, unique)\n2) createdAt, updatedAt\n3) locale (string, optional) untuk bahasa UI bot\n4) preferences:\n   1) englishStyle: formal | informal\n   2) outputLength: short | normal\n   3) keepJavaneseTerms: boolean\n   4) showNotes: boolean (catatan istilah/ungkapan)\n   5) defaultMode: auto | forcejvtoen\n5) limits:\n   1) dailyCount\n   2) dailyResetAt\n\nKoleksi: translations (opsional, untuk kualitas/UX)\n1) id\n2) userId\n3) chatId\n4) messageId\n5) sourceText (dipotong/di-hash jika ingin minim data sensitif)\n6) detectedSource: jv | id | en | unknown\n7) resultText\n8) providerMeta:\n   1) providerName\n   2) latencyMs\n   3) costUnits (jika ada)\n9) createdAt\n\nKoleksi: usageevents (opsional, untuk analytics dan debugging)\n1) id\n2) eventType: translaterequest | translatesuccess | translateerror | command\n3) userId, chatId\n4) timestamp\n5) payload ringan (misalnya panjang teks, kategori error, bukan isi penuh teks)\n\nKoleksi: idempotency (opsional, jika dibutuhkan)\n1) key: gabungan chatId:messageId atau updateid\n2) processedAt\n3) ttl index agar otomatis hilang\n\nCatatan privasi:\n1) Untuk produksi, default sebaiknya tidak menyimpan teks lengkap tanpa alasan kuat.\n2) Simpan hash atau potongan singkat untuk korelasi error, dan sediakan opsi /privacy untuk penjelasan serta /forget untuk menghapus data.\n\nKey flows:\nFlow 1: Terjemahkan pesan teks (utama)\n1) User mengirim pesan teks ke bot (private chat) atau mention/reply di grup (jika diaktifkan).\n2) Middleware validasi:\n   1) Cek rate limit.\n   2) Cek ukuran teks (maks karakter) dan normalisasi whitespace.\n   3) Cek idempotensi (hindari proses ulang).\n3) Deteksi mode:\n   1) Jika user memakai /translate atau reply, paksa translate.\n   2) Jika mode auto, lakukan deteksi ringan (heuristik atau via provider) untuk menilai apakah teks kemungkinan Jawa.\n4) Panggil Translation provider adapter dengan opsi dari preferences.\n5) Format output:\n   1) Balas dengan hasil English.\n   2) Jika showNotes aktif dan tersedia, sertakan catatan singkat (misalnya istilah krama yang bermakna sopan).\n6) Simpan event ringkas ke MongoDB (opsional) dan update counter harian.\n\nFlow 2: Terjemahkan dengan reply\n1) User me-reply pesan orang lain dengan perintah /translate.\n2) Bot mengambil teks dari replied message.\n3) Lanjut seperti Flow 1.\n\nFlow 3: Pengaturan pengguna\n1) User membuka /settings.\n2) Bot menampilkan opsi (inline keyboard) untuk:\n   1) English formal/informal\n   2) Output ringkas/normal\n   3) Simpan istilah Jawa (on/off)\n   4) Catatan istilah (on/off)\n3) Pilihan disimpan di users.preferences.\n\nFlow 4: Batas harian dan anti-spam\n1) Setiap request menambah dailyCount.\n2) Jika melewati batas, bot menolak dengan pesan yang jelas dan waktu reset.\n3) Admin dapat menaikkan limit untuk user tertentu (opsional) atau menonaktifkan bot di chat tertentu.\n\nFlow 5: Error handling dan fallback\n1) Timeout ke provider: bot kirim pesan singkat bahwa layanan sedang sibuk, sarankan ulangi.\n2) Error validasi input: bot minta user memendekkan teks atau menghapus format aneh.\n3) Provider mengembalikan hasil kosong: bot minta user coba dengan kalimat lebih lengkap.\n\nFlow 6: Grup (opsional)\n1) Bot hanya merespons jika:\n   1) Pesan diawali trigger seperti \"jv:\" atau\n   2) Bot di-mention, atau\n   3) Pesan adalah reply ke bot\n2) Ini menghindari spam dan gangguan di grup.\n\nTech stack:\nRuntime dan bahasa:\n1) Node.js (ESM) sebagai satu proses layanan.\n2) grammY sebagai framework Telegram bot.\n\nKonfigurasi dan secrets:\n1) TELEGRAMBOTTOKEN dari environment variables.\n2) Konfigurasi tambahan via environment variables: MongoDB connection string, mode webhook/polling, base URL webhook, batas harian, timeout provider.\n\nPersistensi:\n1) MongoDB untuk users, usage, dan log ringkas.\n2) In-memory maps untuk cache sementara (misalnya rate-limit window, concurrency semaphore) dengan asumsi bisa hilang saat restart.\n\nIntegrasi penerjemahan:\n1) Translation provider adapter (abstraksi) agar bisa memakai layanan terjemahan eksternal atau model internal.\n2) Kebijakan timeout, retry terbatas, dan circuit breaker sederhana di level aplikasi untuk menjaga stabilitas.\n\nPenyimpanan file (jika nanti ada fitur voice/image):\n1) Object storage atau simple filesystem storage untuk menyimpan artefak sementara (misalnya audio hasil STT), dengan pembersihan terjadwal.\n\nDeployment:\n1) Satu Node.js server di cloud.\n2) Ekspos endpoint webhook jika memakai webhook; jika polling, tidak perlu inbound.\n3) Health check endpoint internal (opsional) untuk monitoring.\n\nOperasional:\n1) Logging terstruktur ke stdout dan/atau file.\n2) Monitoring metrik aplikasi secara ringan (latensi, error rate) melalui log dan koleksi usageevents di MongoDB.\n\nNon-functional requirements:\nKeandalan:\n1) Timeout ketat untuk panggilan provider dan batas ukuran input.\n2) Idempotensi untuk mencegah duplikasi proses.\n3) Graceful degradation saat provider bermasalah.\n\nKeamanan:\n1) Validasi input dan sanitasi (hindari format yang memicu parsing berlebihan).\n2) Rate limiting per user dan per chat.\n3) Batasi fitur grup untuk mencegah penyalahgunaan.\n4) Minimalkan data sensitif yang disimpan; dukung penghapusan data.\n\nPrivasi dan kepatuhan:\n1) Jelaskan di /privacy data apa yang disimpan (misalnya preferensi, counter, log ringkas).\n2) Default tidak menyimpan isi teks lengkap atau simpan hanya untuk periode singkat dengan TTL.\n\nKinerja:\n1) Concurrency limit untuk request terjemahan.\n2) Cache hasil terjemahan jangka pendek (opsional) berdasarkan hash input + opsi untuk mengurangi biaya dan latensi.\n\nKualitas terjemahan:\n1) Normalisasi teks (spasi, tanda baca) sebelum diterjemahkan.\n2) Opsi mempertahankan istilah budaya yang sulit diterjemahkan.\n3) Mode formal/informal untuk output English.\n4) Mekanisme feedback pengguna untuk perbaikan (misalnya /feedback).\n\nMaintainability:\n1) Arsitektur berlapis dengan adapter provider.\n2) Konfigurasi berbasis environment variables.\n3) Logging dan event yang cukup untuk debugging tanpa menyimpan konten sensitif.\n\nTesting (konsep, tanpa implementasi kode):\n1) Unit test untuk parsing command, validasi input, dan formatting output.\n2) Integration test untuk adapter provider dengan mock.\n3) End-to-end test skenario Telegram (simulasi update) untuk command utama.\n\nBot commands:\n• /start — Memulai bot dan menampilkan cara pakai cepat untuk translate Jawa ke Inggris. (usage: /start) [General]\n• /help — Menampilkan panduan lengkap, contoh, dan tips agar hasil terjemahan lebih baik. (usage: /help) [General]\n• /translate — Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris. Bisa dipakai langsung atau dengan reply ke pesan. (usage: 1) /translate Aku arep lungo saiki\n2) Reply sebuah pesan lalu kirim /translate) [Translation]\n• /settings — Mengatur preferensi terjemahan seperti formal/informal, ringkas/normal, dan catatan istilah. (usage: /settings) [Preferences]\n• /mode — Mengubah mode: auto (deteksi) atau paksa terjemahkan Jawa ke Inggris untuk setiap pesan. (usage: 1) /mode auto\n2) /mode force) [Preferences]\n• /privacy — Menjelaskan data apa yang disimpan dan untuk apa, serta opsi penghapusan data. (usage: /privacy) [Compliance]\n• /forget — Menghapus data pengguna (preferensi dan catatan penggunaan) dari database. (usage: /forget) [Compliance]\n• /feedback — Mengirim masukan tentang kualitas terjemahan atau melaporkan hasil yang salah. (usage: /feedback Terjemahan kata 'monggo' sebaiknya ...) [Support]\n• /status — Menampilkan status singkat bot dan limit pemakaian harian pengguna. (usage: /status) [General]\n",
+      "planSections": {
+        "productGoals": "Tujuan utama produk:\n1) Menerjemahkan teks Bahasa Jawa ke Bahasa Inggris dengan latensi rendah dan hasil yang mudah dibaca.\n2) Mendukung variasi bahasa Jawa (ngoko/krama) serta teks campuran Jawa-Indonesia.\n3) Menyediakan kontrol pengguna: mode formal/informal English, preferensi gaya, dan opsi untuk menampilkan romanisasi atau penjelasan istilah tertentu.\n4) Aman dan siap produksi: pembatasan laju, perlindungan dari spam, logging, dan pemantauan kesehatan.\n\nRuang lingkup MVP (minimum viable product):\n1) Terjemahkan pesan teks yang dikirim pengguna (atau reply ke pesan) dari Jawa ke Inggris.\n2) Deteksi bahasa ringan (untuk menghindari menerjemahkan teks yang jelas bukan Jawa) dan fallback yang jelas.\n3) Pengaturan dasar per pengguna: gaya English (formal/informal), panjang output (ringkas/normal), dan opsi mempertahankan istilah asli.\n\nKriteria sukses:\n1) Pengguna bisa menerjemahkan dengan satu langkah: kirim pesan, bot membalas terjemahan.\n2) Tingkat kegagalan rendah (error rate), dengan pesan error yang informatif.\n3) Bot tetap responsif saat beban meningkat, dengan kontrol antrian internal dan rate limiting.",
+        "highLevelArchitecture": "Gambaran tingkat tinggi (single process):\n1) Telegram layer (grammY): menerima update, routing command, middleware, dan handler pesan.\n2) Application layer: use-case seperti TranslateText, SetPreference, DetectLanguage, UsageAccounting.\n3) Translation provider adapter: antarmuka generik (translate(sourceText, options)) yang dapat diimplementasikan oleh berbagai penyedia (API atau engine internal). Tujuannya mengisolasi ketergantungan vendor/model.\n4) Persistence layer (MongoDB): menyimpan user profile, preferences, usage counters, dan event log ringkas.\n5) Observability: structured logging, error tracking (internal), metrik dasar (jumlah request, latensi, error, token/biaya jika relevan) disimpan di MongoDB atau log aggregator berbasis file.\n\nPrinsip desain:\n1) Idempotensi: setiap update diproses aman tanpa efek samping berulang (misalnya, mencegah double-translate akibat retry webhook/polling).\n2) Bounded work per update: batasi ukuran input, batasi waktu pemrosesan, dan batasi jumlah panggilan ke provider per pesan.\n3) Degradasi yang baik: jika provider down/timeout, bot memberi respons ramah dan menyarankan coba lagi.\n\nMode penerimaan update:\n1) Direkomendasikan webhook untuk produksi agar latensi dan efisiensi lebih baik.\n2) Long polling dapat menjadi fallback saat pengaturan webhook tidak memungkinkan.\n\nKinerja dan kontrol beban:\n1) Rate limiting per user dan global untuk mencegah spam dan menjaga biaya.\n2) Concurrency control internal: batasi jumlah terjemahan paralel (misalnya per proses) agar tidak menumpuk dan menurunkan respons.\n3) Timeout dan retry terkontrol untuk panggilan ke translation provider (retry hanya untuk error yang aman).",
+        "dataModel": "Koleksi: users\n1) userId (number, unique)\n2) createdAt, updatedAt\n3) locale (string, optional) untuk bahasa UI bot\n4) preferences:\n   1) englishStyle: formal | informal\n   2) outputLength: short | normal\n   3) keepJavaneseTerms: boolean\n   4) showNotes: boolean (catatan istilah/ungkapan)\n   5) defaultMode: auto | forcejvtoen\n5) limits:\n   1) dailyCount\n   2) dailyResetAt\n\nKoleksi: translations (opsional, untuk kualitas/UX)\n1) id\n2) userId\n3) chatId\n4) messageId\n5) sourceText (dipotong/di-hash jika ingin minim data sensitif)\n6) detectedSource: jv | id | en | unknown\n7) resultText\n8) providerMeta:\n   1) providerName\n   2) latencyMs\n   3) costUnits (jika ada)\n9) createdAt\n\nKoleksi: usageevents (opsional, untuk analytics dan debugging)\n1) id\n2) eventType: translaterequest | translatesuccess | translateerror | command\n3) userId, chatId\n4) timestamp\n5) payload ringan (misalnya panjang teks, kategori error, bukan isi penuh teks)\n\nKoleksi: idempotency (opsional, jika dibutuhkan)\n1) key: gabungan chatId:messageId atau updateid\n2) processedAt\n3) ttl index agar otomatis hilang\n\nCatatan privasi:\n1) Untuk produksi, default sebaiknya tidak menyimpan teks lengkap tanpa alasan kuat.\n2) Simpan hash atau potongan singkat untuk korelasi error, dan sediakan opsi /privacy untuk penjelasan serta /forget untuk menghapus data.",
+        "keyFlows": "Flow 1: Terjemahkan pesan teks (utama)\n1) User mengirim pesan teks ke bot (private chat) atau mention/reply di grup (jika diaktifkan).\n2) Middleware validasi:\n   1) Cek rate limit.\n   2) Cek ukuran teks (maks karakter) dan normalisasi whitespace.\n   3) Cek idempotensi (hindari proses ulang).\n3) Deteksi mode:\n   1) Jika user memakai /translate atau reply, paksa translate.\n   2) Jika mode auto, lakukan deteksi ringan (heuristik atau via provider) untuk menilai apakah teks kemungkinan Jawa.\n4) Panggil Translation provider adapter dengan opsi dari preferences.\n5) Format output:\n   1) Balas dengan hasil English.\n   2) Jika showNotes aktif dan tersedia, sertakan catatan singkat (misalnya istilah krama yang bermakna sopan).\n6) Simpan event ringkas ke MongoDB (opsional) dan update counter harian.\n\nFlow 2: Terjemahkan dengan reply\n1) User me-reply pesan orang lain dengan perintah /translate.\n2) Bot mengambil teks dari replied message.\n3) Lanjut seperti Flow 1.\n\nFlow 3: Pengaturan pengguna\n1) User membuka /settings.\n2) Bot menampilkan opsi (inline keyboard) untuk:\n   1) English formal/informal\n   2) Output ringkas/normal\n   3) Simpan istilah Jawa (on/off)\n   4) Catatan istilah (on/off)\n3) Pilihan disimpan di users.preferences.\n\nFlow 4: Batas harian dan anti-spam\n1) Setiap request menambah dailyCount.\n2) Jika melewati batas, bot menolak dengan pesan yang jelas dan waktu reset.\n3) Admin dapat menaikkan limit untuk user tertentu (opsional) atau menonaktifkan bot di chat tertentu.\n\nFlow 5: Error handling dan fallback\n1) Timeout ke provider: bot kirim pesan singkat bahwa layanan sedang sibuk, sarankan ulangi.\n2) Error validasi input: bot minta user memendekkan teks atau menghapus format aneh.\n3) Provider mengembalikan hasil kosong: bot minta user coba dengan kalimat lebih lengkap.\n\nFlow 6: Grup (opsional)\n1) Bot hanya merespons jika:\n   1) Pesan diawali trigger seperti \"jv:\" atau\n   2) Bot di-mention, atau\n   3) Pesan adalah reply ke bot\n2) Ini menghindari spam dan gangguan di grup.",
+        "techStack": "Runtime dan bahasa:\n1) Node.js (ESM) sebagai satu proses layanan.\n2) grammY sebagai framework Telegram bot.\n\nKonfigurasi dan secrets:\n1) TELEGRAMBOTTOKEN dari environment variables.\n2) Konfigurasi tambahan via environment variables: MongoDB connection string, mode webhook/polling, base URL webhook, batas harian, timeout provider.\n\nPersistensi:\n1) MongoDB untuk users, usage, dan log ringkas.\n2) In-memory maps untuk cache sementara (misalnya rate-limit window, concurrency semaphore) dengan asumsi bisa hilang saat restart.\n\nIntegrasi penerjemahan:\n1) Translation provider adapter (abstraksi) agar bisa memakai layanan terjemahan eksternal atau model internal.\n2) Kebijakan timeout, retry terbatas, dan circuit breaker sederhana di level aplikasi untuk menjaga stabilitas.\n\nPenyimpanan file (jika nanti ada fitur voice/image):\n1) Object storage atau simple filesystem storage untuk menyimpan artefak sementara (misalnya audio hasil STT), dengan pembersihan terjadwal.\n\nDeployment:\n1) Satu Node.js server di cloud.\n2) Ekspos endpoint webhook jika memakai webhook; jika polling, tidak perlu inbound.\n3) Health check endpoint internal (opsional) untuk monitoring.\n\nOperasional:\n1) Logging terstruktur ke stdout dan/atau file.\n2) Monitoring metrik aplikasi secara ringan (latensi, error rate) melalui log dan koleksi usageevents di MongoDB.",
+        "nonFunctional": "Keandalan:\n1) Timeout ketat untuk panggilan provider dan batas ukuran input.\n2) Idempotensi untuk mencegah duplikasi proses.\n3) Graceful degradation saat provider bermasalah.\n\nKeamanan:\n1) Validasi input dan sanitasi (hindari format yang memicu parsing berlebihan).\n2) Rate limiting per user dan per chat.\n3) Batasi fitur grup untuk mencegah penyalahgunaan.\n4) Minimalkan data sensitif yang disimpan; dukung penghapusan data.\n\nPrivasi dan kepatuhan:\n1) Jelaskan di /privacy data apa yang disimpan (misalnya preferensi, counter, log ringkas).\n2) Default tidak menyimpan isi teks lengkap atau simpan hanya untuk periode singkat dengan TTL.\n\nKinerja:\n1) Concurrency limit untuk request terjemahan.\n2) Cache hasil terjemahan jangka pendek (opsional) berdasarkan hash input + opsi untuk mengurangi biaya dan latensi.\n\nKualitas terjemahan:\n1) Normalisasi teks (spasi, tanda baca) sebelum diterjemahkan.\n2) Opsi mempertahankan istilah budaya yang sulit diterjemahkan.\n3) Mode formal/informal untuk output English.\n4) Mekanisme feedback pengguna untuk perbaikan (misalnya /feedback).\n\nMaintainability:\n1) Arsitektur berlapis dengan adapter provider.\n2) Konfigurasi berbasis environment variables.\n3) Logging dan event yang cukup untuk debugging tanpa menyimpan konten sensitif.\n\nTesting (konsep, tanpa implementasi kode):\n1) Unit test untuk parsing command, validasi input, dan formatting output.\n2) Integration test untuk adapter provider dengan mock.\n3) End-to-end test skenario Telegram (simulasi update) untuk command utama."
+      },
+      "balanceCentsRemaining": 12,
+      "billing": {
+        "ok": true,
+        "charged": 33,
+        "remaining": 12,
+        "chargedCents": 33,
+        "remainingCents": 12,
+        "currency": "USD",
+        "baseUsd": 0.16492,
+        "markupUsd": 0.16492,
+        "platformFeeUsd": 0,
+        "totalUsd": 0.32984
+      },
+      "title": "Telegram Bot: Penerjemah Bah"
+    }
+  },
+  "envVarDocs": [
+    {
+      "key": "TELEGRAM_BOT_TOKEN",
+      "title": "Telegram Bot Token",
+      "description": "Token bot dari BotFather untuk menjalankan bot Telegram.",
+      "usage": "Dipakai saat startup untuk membuat instance grammY Bot.",
+      "howToGet": "Buat bot lewat BotFather, lalu copy tokennya.",
+      "example": "123456789:ABCDEF-your-token",
+      "isSecret": true,
+      "required": true
+    },
+    {
+      "key": "COOKMYBOTS_AI_ENDPOINT",
+      "title": "CookMyBots AI Endpoint",
+      "description": "Base URL untuk CookMyBots AI Gateway (jangan tambahkan /chat).",
+      "usage": "Bot akan memanggil {COOKMYBOTS_AI_ENDPOINT}/chat untuk terjemahan.",
+      "howToGet": "Dari konfigurasi CookMyBots AI Gateway project kamu.",
+      "example": "https://api.cookmybots.com/api/ai",
+      "isSecret": false,
+      "required": true
+    },
+    {
+      "key": "COOKMYBOTS_AI_KEY",
+      "title": "CookMyBots AI Key",
+      "description": "API key untuk otentikasi ke CookMyBots AI Gateway.",
+      "usage": "Dikirim sebagai header Authorization: Bearer <key> saat memanggil gateway.",
+      "howToGet": "Dari dashboard CookMyBots untuk project kamu.",
+      "example": "cmb_ai_... (format saja)",
+      "isSecret": true,
+      "required": true
+    },
+    {
+      "key": "AI_TIMEOUT_MS",
+      "title": "AI Timeout (ms)",
+      "description": "Batas waktu maksimal untuk request ke AI Gateway.",
+      "usage": "Dipakai oleh helper aiChat untuk AbortController timeout.",
+      "howToGet": "Opsional, set manual di env bila perlu.",
+      "example": "600000",
+      "isSecret": false,
+      "required": false
+    },
+    {
+      "key": "AI_MODEL",
+      "title": "AI Model",
+      "description": "Nama model opsional untuk diteruskan ke AI Gateway.",
+      "usage": "Jika kosong, gateway akan memakai default model.",
+      "howToGet": "Opsional, tergantung konfigurasi gateway kamu.",
+      "example": "gpt-4.1-mini (contoh saja)",
+      "isSecret": false,
+      "required": false
+    }
+  ],
+  "commandDocs": [
+    {
+      "command": "/start",
+      "description": "Sambutan singkat + cara pakai + status setting kamu (mode dan formalitas).",
+      "usage": "/start",
+      "examples": [
+        "User: /start → Bot: menjelaskan cara pakai dan status mode/formal"
+      ],
+      "notes": "Preferensi disimpan di memori runtime dan akan reset kalau bot restart."
+    },
+    {
+      "command": "/help",
+      "description": "Panduan lengkap semua fitur dan contoh pemakaian.",
+      "usage": "/help",
+      "examples": [
+        "User: /help → Bot: daftar fitur + contoh /translate, /mode, /formal, /detect"
+      ],
+      "notes": "Hanya menjelaskan perintah yang benar-benar tersedia."
+    },
+    {
+      "command": "/translate",
+      "description": "Menerjemahkan teks Jawa ke Inggris dari argumen atau dari pesan yang direply.",
+      "usage": "/translate <teks> atau reply pesan lalu kirim /translate",
+      "examples": [
+        "User: /translate Kowe piye kabare? → Bot: How are you?",
+        "User: (reply pesan) /translate → Bot: (terjemahan dari pesan reply)"
+      ],
+      "notes": "Jika tidak ada teks, bot akan memberi instruksi penggunaan."
+    },
+    {
+      "command": "/mode",
+      "description": "Mengatur mode auto atau manual.",
+      "usage": "/mode auto atau /mode manual",
+      "examples": [
+        "User: /mode auto → Bot: Oke, mode diset ke auto.",
+        "User: /mode manual → Bot: Oke, mode diset ke manual."
+      ],
+      "notes": "Mode auto menerjemahkan semua pesan teks biasa (non-command)."
+    },
+    {
+      "command": "/formal",
+      "description": "Mengatur gaya bahasa Inggris: neutral, formal, atau casual.",
+      "usage": "/formal neutral|formal|casual",
+      "examples": [
+        "User: /formal formal → Bot: Oke, formalitas diset ke formal.",
+        "User: /formal casual → Bot: Oke, formalitas diset ke casual."
+      ],
+      "notes": "Default adalah neutral."
+    },
+    {
+      "command": "/detect",
+      "description": "Deteksi heuristik ringan apakah teks kemungkinan Bahasa Jawa.",
+      "usage": "/detect <teks> atau reply pesan lalu kirim /detect",
+      "examples": [
+        "User: /detect Aku ora ngerti → Bot: Kemungkinan Jawa: ya. Coba pakai /translate."
+      ],
+      "notes": "Heuristik ringan, tidak selalu akurat."
+    }
+  ],
+  "title": "Telegram Bot: Penerjemah Bah"
+}
